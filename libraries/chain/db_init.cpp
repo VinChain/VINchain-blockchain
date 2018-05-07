@@ -67,6 +67,7 @@
 #include <graphene/chain/vindb_block_evaluator.hpp>
 #include <graphene/chain/invoice_evaluator.hpp>
 #include <graphene/chain/invoice_payment_evaluator.hpp>
+#include <graphene/chain/exclusive_permission_evaluator.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -143,6 +144,9 @@ namespace graphene {
         const uint8_t invoice_payment_object::space_id;
         const uint8_t invoice_payment_object::type_id;
 
+        const uint8_t exclusive_permission_object::space_id;
+        const uint8_t exclusive_permission_object::type_id;
+
 
         void database::initialize_evaluators() {
             _operation_evaluators.resize(255);
@@ -191,6 +195,7 @@ namespace graphene {
             register_evaluator<vindb_block_create_evaluator>();
             register_evaluator<invoice_create_evaluator>();
             register_evaluator<invoice_payment_create_evaluator>();
+            register_evaluator<give_exclusive_permission_evaluator>();
         }
 
         void database::initialize_indexes() {
@@ -210,6 +215,7 @@ namespace graphene {
             add_index < primary_index < vindb_block_index > > ();
             add_index < primary_index < invoice_index > > ();
             add_index < primary_index < invoice_payment_index > > ();
+            add_index < primary_index < exclusive_permission_index > > ();
             add_index < primary_index < limit_order_index > > ();
             add_index < primary_index < call_order_index > > ();
 

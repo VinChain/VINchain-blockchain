@@ -33,6 +33,7 @@ namespace graphene {
     namespace chain {
 
         void transfer_to_blind_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount.amount > 0);
 
@@ -66,6 +67,7 @@ namespace graphene {
 
 
         void transfer_from_blind_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(amount.amount > 0);
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(inputs.size() > 0);
@@ -95,11 +97,12 @@ namespace graphene {
         }
 
 
-/**
- *  This method can be computationally intensive because it verifies that input commitments - output commitments add up to 0
- */
+        /**
+         *  This method can be computationally intensive because it verifies that input commitments - output commitments add up to 0
+         */
         void blind_transfer_operation::validate() const {
             try {
+                FC_ASSERT(false, "Operation not permitted right now.");
                 vector <commitment_type> in(inputs.size());
                 vector <commitment_type> out(outputs.size());
                 int64_t net_public = fee.amount.value;//from_amount.value - to_amount.value;
@@ -132,16 +135,16 @@ namespace graphene {
         }
 
 
-/**
- *  Packs *this then encodes as base58 encoded string.
- */
+        /**
+         *  Packs *this then encodes as base58 encoded string.
+         */
         stealth_confirmation::operator string() const {
             return fc::to_base58(fc::raw::pack(*this));
         }
 
-/**
- * Unpacks from a base58 string
- */
+        /**
+         * Unpacks from a base58 string
+         */
         stealth_confirmation::stealth_confirmation(const std::string &base58) {
             *this = fc::raw::unpack<stealth_confirmation>(fc::from_base58(base58));
         }

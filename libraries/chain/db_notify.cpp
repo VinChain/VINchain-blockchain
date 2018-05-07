@@ -123,6 +123,10 @@ struct get_impacted_account_visitor {
         _impacted.insert(op.from);
     }
 
+    void operator()(const give_exclusive_permission_operation &op) {
+        _impacted.insert(op.from);
+    }
+
     void operator()(const proposal_create_operation &op) {
         vector <authority> other;
         for (const auto &proposed_op : op.proposed_ops)
@@ -268,6 +272,12 @@ static void get_relevant_accounts(const object *obj, flat_set <account_id_type> 
                 const auto &aobj = dynamic_cast<const invoice_payment_object *>(obj);
                 assert(aobj != nullptr);
                 accounts.insert(aobj->from);
+                break;
+            }
+            case exclusive_permission_object_type: {
+                const auto &aobj = dynamic_cast<const exclusive_permission_object *>(obj);
+                assert(aobj != nullptr);
+                accounts.insert(aobj->account);
                 break;
             }
             case limit_order_object_type: {

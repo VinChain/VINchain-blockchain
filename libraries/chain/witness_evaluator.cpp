@@ -27,12 +27,29 @@
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/protocol/vote.hpp>
+#include <graphene/chain/exclusive_permission_object.hpp>
 
 namespace graphene {
     namespace chain {
         void_result witness_create_evaluator::do_evaluate(const witness_create_operation &op) {
             try {
                 FC_ASSERT(db().get(op.witness_account).is_lifetime_member());
+
+                const auto &idx = db().get_index_type<exclusive_permission_index>();
+                const auto &by_account_idx = idx.indices().get<by_account>();
+                const auto &by_id_idx = idx.indices().get<by_id>();
+                if (boost::size(by_id_idx)) {
+                    bool can_give = false;
+                    auto records_range = by_account_idx.equal_range(op.witness_account);
+                    std::for_each(records_range.first, records_range.second,
+                                  [&](const exclusive_permission_object &record) {
+                                      if (record.permission == "witness_create")
+                                          can_give = true;
+                                  });
+
+                    FC_ASSERT(can_give, "Could not permission for this operation");
+                }
+
                 return void_result();
             }
             FC_CAPTURE_AND_RETHROW((op))

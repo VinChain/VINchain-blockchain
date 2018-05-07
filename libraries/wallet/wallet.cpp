@@ -2194,6 +2194,35 @@ namespace graphene {
                                            (amount)(asset_symbol)(contractor_reward)(records)(broadcast));
                 };
 
+                signed_transaction
+                give_exclusive_permission(string from, string to, string permission, bool broadcast = false) {
+                    try {
+                        FC_ASSERT(!self.is_locked());
+
+                        account_object from_account = get_account(from);
+                        account_id_type from_account_id = from_account.id;
+
+                        account_object to_account = get_account(to);
+                        account_id_type to_account_id = to_account.id;
+
+                        give_exclusive_permission_operation gepo_op;
+
+                        gepo_op.from = from_account_id;
+                        gepo_op.to = to_account_id;
+                        gepo_op.permission = permission;
+
+                        signed_transaction tx;
+
+                        tx.operations.push_back(gepo_op);
+                        set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+                        tx.validate();
+
+                        return sign_transaction(tx, broadcast);
+
+                    }
+                    FC_CAPTURE_AND_RETHROW((from)(to)(permission)(broadcast));
+                }
+
                 signed_transaction issue_asset(string to_account, string amount, string symbol,
                                                string memo, bool broadcast = false) {
                     auto asset_obj = get_asset(symbol);
@@ -3406,6 +3435,10 @@ namespace graphene {
                                       contractor_reward, records, broadcast);
         }
 
+        signed_transaction
+        wallet_api::give_exclusive_permission(string from, string to, string permission, bool broadcast) {
+            return my->give_exclusive_permission(from, to, permission, broadcast);
+        }
 
         signed_transaction wallet_api::create_asset(string issuer,
                                                     string symbol,

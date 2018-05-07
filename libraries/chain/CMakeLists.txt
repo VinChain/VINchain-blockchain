@@ -61,6 +61,7 @@ add_library( graphene_chain
              protocol/vindb_block.cpp
              protocol/invoice.cpp
              protocol/invoice_payment.cpp
+             protocol/exclusive_permission.cpp
 
              genesis_state.cpp
              get_config.cpp
@@ -81,9 +82,10 @@ add_library( graphene_chain
              withdraw_permission_evaluator.cpp
              worker_evaluator.cpp
              confidential_evaluator.cpp
-        vindb_block_evaluator.cpp
+             vindb_block_evaluator.cpp
              invoice_evaluator.cpp
              invoice_payment_evaluator.cpp
+             exclusive_permission_evaluator.cpp
              special_authority.cpp
              buyback.cpp
 

@@ -42,6 +42,7 @@
 #include <graphene/chain/protocol/vindb_block.hpp>
 #include <graphene/chain/protocol/invoice.hpp>
 #include <graphene/chain/protocol/invoice_payment.hpp>
+#include <graphene/chain/protocol/exclusive_permission.hpp>
 
 
 namespace graphene {
@@ -54,34 +55,34 @@ namespace graphene {
          */
         typedef fc::static_variant <
         transfer_operation,
-        limit_order_create_operation,
-        limit_order_cancel_operation,
-        call_order_update_operation,
+        limit_order_create_operation, // not permitted
+        limit_order_cancel_operation, // not permitted
+        call_order_update_operation, // not permitted
         fill_order_operation,           // VIRTUAL
         account_create_operation,
         account_update_operation,
         account_whitelist_operation,
         account_upgrade_operation,
         account_transfer_operation,
-        asset_create_operation,
-        asset_update_operation,
-        asset_update_bitasset_operation,
-        asset_update_feed_producers_operation,
-        asset_issue_operation,
-        asset_reserve_operation,
-        asset_fund_fee_pool_operation,
-        asset_settle_operation,
-        asset_global_settle_operation,
-        asset_publish_feed_operation,
+        asset_create_operation, // not permitted
+        asset_update_operation, // not permitted
+        asset_update_bitasset_operation, // not permitted
+        asset_update_feed_producers_operation, // not permitted
+        asset_issue_operation, // not permitted
+        asset_reserve_operation, // not permitted
+        asset_fund_fee_pool_operation, // not permitted
+        asset_settle_operation, // not permitted
+        asset_global_settle_operation, // not permitted
+        asset_publish_feed_operation, // not permitted
         witness_create_operation,
         witness_update_operation,
-        proposal_create_operation,
-        proposal_update_operation,
-        proposal_delete_operation,
-        withdraw_permission_create_operation,
-        withdraw_permission_update_operation,
-        withdraw_permission_claim_operation,
-        withdraw_permission_delete_operation,
+        proposal_create_operation, // not permitted
+        proposal_update_operation, // not permitted
+        proposal_delete_operation, // not permitted
+        withdraw_permission_create_operation, // not permitted
+        withdraw_permission_update_operation, // not permitted
+        withdraw_permission_claim_operation, // not permitted
+        withdraw_permission_delete_operation, // not permitted
         committee_member_create_operation,
         committee_member_update_operation,
         committee_member_update_global_parameters_operation,
@@ -91,18 +92,19 @@ namespace graphene {
         custom_operation,
         assert_operation,
         balance_claim_operation,
-        override_transfer_operation,
-        transfer_to_blind_operation,
-        blind_transfer_operation,
-        transfer_from_blind_operation,
+        override_transfer_operation, // not permitted
+        transfer_to_blind_operation, // not permitted
+        blind_transfer_operation, // not permitted
+        transfer_from_blind_operation, // not permitted
         asset_settle_cancel_operation,  // VIRTUAL
-        asset_claim_fees_operation,
+        asset_claim_fees_operation, // not permitted
         fba_distribute_operation,       // VIRTUAL
-        bid_collateral_operation,
+        bid_collateral_operation, // not permitted
         execute_bid_operation,           // VIRTUAL
         vindb_block_create_operation,
         invoice_create_operation,
-        invoice_payment_create_operation
+        invoice_payment_create_operation,
+        give_exclusive_permission_operation
         > operation;
 
         /// @} // operations group

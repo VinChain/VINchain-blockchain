@@ -24,7 +24,7 @@
 
 #include <graphene/chain/protocol/authority.hpp>
 #include <graphene/app/impacted.hpp>
-#include "../chain/include/graphene/chain/protocol/invoice.hpp"
+
 
 namespace graphene {
     namespace app {
@@ -133,6 +133,10 @@ namespace graphene {
             }
 
             void operator()(const invoice_payment_create_operation &op) {
+                _impacted.insert(op.from);
+            }
+
+            void operator()(const give_exclusive_permission_operation &op) {
                 _impacted.insert(op.from);
             }
 

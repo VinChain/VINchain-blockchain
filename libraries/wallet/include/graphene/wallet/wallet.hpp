@@ -836,6 +836,9 @@ namespace graphene {
                            string asset_symbol, string contractor_reward,
                            vector <create_invoice_invoice_vehicle_record> records, bool broadcast = false);
 
+            signed_transaction give_exclusive_permission(string from, string to, string permission, bool broadcast = false);
+
+
             /**
              *  This method works just like transfer, except it always broadcasts and
              *  returns the transaction ID along with the signed transaction.
@@ -1798,6 +1801,7 @@ FC_API( graphene::wallet::wallet_api,
         (create_vindb_block)
         (create_invoice_payment)
         (create_invoice)
+        (give_exclusive_permission)
 )
 
 FC_REFLECT( graphene::wallet::create_invoice_invoice_vehicle_record, (data_source)(hash)(value)(reward) )

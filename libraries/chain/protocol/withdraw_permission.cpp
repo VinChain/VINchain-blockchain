@@ -27,6 +27,7 @@ namespace graphene {
     namespace chain {
 
         void withdraw_permission_update_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(withdrawal_limit.amount > 0);
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(withdrawal_period_sec > 0);
@@ -35,6 +36,7 @@ namespace graphene {
         }
 
         void withdraw_permission_claim_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(withdraw_to_account != withdraw_from_account);
             FC_ASSERT(amount_to_withdraw.amount > 0);
             FC_ASSERT(fee.amount >= 0);
@@ -48,6 +50,7 @@ namespace graphene {
         }
 
         void withdraw_permission_create_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(withdraw_from_account != authorized_account);
             FC_ASSERT(withdrawal_limit.amount > 0);
@@ -57,6 +60,7 @@ namespace graphene {
         }
 
         void withdraw_permission_delete_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(withdraw_from_account != authorized_account);
         }

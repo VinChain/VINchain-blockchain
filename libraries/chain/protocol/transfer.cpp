@@ -27,33 +27,41 @@ namespace graphene {
     namespace chain {
 
         share_type transfer_operation::calculate_fee(const fee_parameters_type &schedule) const {
-            share_type core_fee_required = schedule.fee;
-            if (memo)
-                core_fee_required += calculate_data_fee(fc::raw::pack_size(memo), schedule.price_per_kbyte);
-            return core_fee_required;
-        }
+            share_type dynamic_fee = amount.amount * schedule.fee_percent / GRAPHENE_100_PERCENT;
+            if (dynamic_fee > schedule.max_fee)
+                return schedule.max_fee;
 
+            return dynamic_fee;
+        }
 
         void transfer_operation::validate() const {
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(from != to);
             FC_ASSERT(amount.amount > 0);
+            if (memo) {
+                FC_ASSERT(fc::raw::pack_size(memo) <= 512);
+            }
         }
 
 
         share_type override_transfer_operation::calculate_fee(const fee_parameters_type &schedule) const {
-            share_type core_fee_required = schedule.fee;
-            if (memo)
-                core_fee_required += calculate_data_fee(fc::raw::pack_size(memo), schedule.price_per_kbyte);
-            return core_fee_required;
+            share_type dynamic_fee = amount.amount * schedule.fee_percent / GRAPHENE_100_PERCENT;
+            if (dynamic_fee > schedule.max_fee)
+                return schedule.max_fee;
+
+            return dynamic_fee;
         }
 
 
         void override_transfer_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(from != to);
             FC_ASSERT(amount.amount > 0);
             FC_ASSERT(issuer != from);
+            if (memo) {
+                FC_ASSERT(fc::raw::pack_size(memo) <= 512);
+            }
         }
 
     }

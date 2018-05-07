@@ -93,6 +93,7 @@ namespace graphene {
         }
 
         void asset_create_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(is_valid_symbol(symbol));
             common_options.validate();
@@ -110,6 +111,7 @@ namespace graphene {
         }
 
         void asset_update_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             if (new_issuer)
                 FC_ASSERT(issuer != *new_issuer);
@@ -125,6 +127,7 @@ namespace graphene {
 
 
         void asset_publish_feed_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             feed.validate();
 
@@ -142,12 +145,14 @@ namespace graphene {
         }
 
         void asset_reserve_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount_to_reserve.amount.value <= GRAPHENE_MAX_SHARE_SUPPLY);
             FC_ASSERT(amount_to_reserve.amount.value > 0);
         }
 
         void asset_issue_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(asset_to_issue.amount.value <= GRAPHENE_MAX_SHARE_SUPPLY);
             FC_ASSERT(asset_to_issue.amount.value > 0);
@@ -155,26 +160,31 @@ namespace graphene {
         }
 
         void asset_fund_fee_pool_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(fee.asset_id == asset_id_type());
             FC_ASSERT(amount > 0);
         }
 
         void asset_settle_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount.amount >= 0);
         }
 
         void asset_update_bitasset_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             new_options.validate();
         }
 
         void asset_update_feed_producers_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
         }
 
         void asset_global_settle_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(asset_to_settle == settle_price.base.asset_id);
         }
@@ -211,6 +221,7 @@ namespace graphene {
         }
 
         void asset_claim_fees_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount_to_claim.amount > 0);
         }

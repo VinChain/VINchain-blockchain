@@ -38,6 +38,7 @@ namespace graphene {
         }
 
         void proposal_create_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(!proposed_ops.empty());
             for (const auto &op : proposed_ops) operation_validate(op.op);
         }
@@ -47,6 +48,7 @@ namespace graphene {
         }
 
         void proposal_update_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(!(active_approvals_to_add.empty() && active_approvals_to_remove.empty() &&
                         owner_approvals_to_add.empty() && owner_approvals_to_remove.empty() &&
@@ -66,6 +68,7 @@ namespace graphene {
         }
 
         void proposal_delete_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
         }
 

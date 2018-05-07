@@ -139,11 +139,11 @@ namespace graphene {
         };
 
 
-/**
- *  @class transfer_to_blind_operation
- *  @ingroup stealth
- *  @brief Converts public account balance to a blinded or stealth balance
- */
+        /**
+         *  @class transfer_to_blind_operation
+         *  @ingroup stealth
+         *  @brief Converts public account balance to a blinded or stealth balance
+         */
         struct transfer_to_blind_operation : public base_operation {
             struct fee_parameters_type {
                 uint64_t fee =
@@ -165,10 +165,10 @@ namespace graphene {
             share_type calculate_fee(const fee_parameters_type &) const;
         };
 
-/**
- *  @ingroup stealth
- *  @brief Converts blinded/stealth balance to a public account balance
- */
+        /**
+         *  @ingroup stealth
+         *  @brief Converts blinded/stealth balance to a public account balance
+         */
         struct transfer_from_blind_operation : public base_operation {
             struct fee_parameters_type {
                 uint64_t fee =

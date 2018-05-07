@@ -2,6 +2,7 @@
 #include <graphene/chain/invoice_evaluator.hpp>
 #include <graphene/chain/invoice_object.hpp>
 #include <graphene/chain/protocol/invoice.hpp>
+#include <graphene/chain/exclusive_permission_object.hpp>
 
 
 namespace graphene {
@@ -23,6 +24,21 @@ namespace graphene {
                 FC_ASSERT(o.amount == total_amount, "Incorrect rewards for data sources records");
             } FC_RETHROW_EXCEPTIONS(error, "Unable to create invoice ${i} from ${c} to ${cr}",
                                     ("i", o.report_uuid)("c", contractor.name)("cr", customer.name));
+
+            try {
+                const auto &idx = db().get_index_type<exclusive_permission_index>();
+                const auto &by_account_idx = idx.indices().get<by_account>();
+
+                bool can_give = false;
+                auto records_range = by_account_idx.equal_range(contractor.get_id());
+                std::for_each(records_range.first, records_range.second,
+                              [&](const exclusive_permission_object &record) {
+                                  if (record.permission == "invoice_create")
+                                      can_give = true;
+                              });
+
+                FC_ASSERT(can_give, "Could not permission for this operation");
+            } FC_CAPTURE_AND_RETHROW((o));
 
             return void_result();
         }
