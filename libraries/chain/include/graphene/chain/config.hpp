@@ -55,9 +55,9 @@
 
 #define GRAPHENE_MIN_BLOCK_SIZE_LIMIT (GRAPHENE_MIN_TRANSACTION_SIZE_LIMIT*5) // 5 transactions per block
 #define GRAPHENE_MIN_TRANSACTION_EXPIRATION_LIMIT (GRAPHENE_MAX_BLOCK_INTERVAL * 5) // 5 transactions per block
-#define GRAPHENE_BLOCKCHAIN_PRECISION                           uint64_t( 100000 )
+#define GRAPHENE_BLOCKCHAIN_PRECISION                           uint64_t( 1000000 )
 
-#define GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS                    5
+#define GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS                    6
 #define GRAPHENE_DEFAULT_TRANSFER_FEE                           (1*GRAPHENE_BLOCKCHAIN_PRECISION)
 #define GRAPHENE_MAX_INSTANCE_ID                                (uint64_t(-1)>>16)
 /** percentage fields are fixed point with a denominator of 10,000 */
@@ -144,7 +144,7 @@
 #define GRAPHENE_RECENTLY_MISSED_COUNT_INCREMENT             4
 #define GRAPHENE_RECENTLY_MISSED_COUNT_DECREMENT             3
 
-#define GRAPHENE_CURRENT_DB_VERSION                          "VIN2.11"
+#define GRAPHENE_CURRENT_DB_VERSION                          "VIN1.00"
 
 #define GRAPHENE_IRREVERSIBLE_THRESHOLD                      (70 * GRAPHENE_1_PERCENT)
 

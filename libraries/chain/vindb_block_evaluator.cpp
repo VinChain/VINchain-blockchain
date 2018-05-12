@@ -1,10 +1,26 @@
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/vindb_block_evaluator.hpp>
+#include <graphene/chain/exclusive_permission_object.hpp>
 
 
 namespace graphene {
     namespace chain {
         void_result vindb_block_create_evaluator::do_evaluate(const vindb_block_create_operation &o) {
+            try {
+                const auto &idx = db().get_index_type<exclusive_permission_index>();
+                const auto &by_account_idx = idx.indices().get<by_account>();
+
+                bool can_give = false;
+                auto records_range = by_account_idx.equal_range(o.owner);
+                std::for_each(records_range.first, records_range.second,
+                              [&](const exclusive_permission_object &record) {
+                                  if (record.permission == "vindb_block_create")
+                                      can_give = true;
+                              });
+
+                FC_ASSERT(can_give, "Could not permission for this operation");
+            } FC_CAPTURE_AND_RETHROW((o));
+
             return void_result();
         }
 

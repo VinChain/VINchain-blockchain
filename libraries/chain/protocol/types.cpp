@@ -55,7 +55,7 @@ namespace graphene {
             auto bin = fc::from_base58(base58str.substr(prefix_len));
             auto bin_key = fc::raw::unpack<binary_key>(bin);
             key_data = bin_key.data;
-            FC_ASSERT(fc::ripemd160::hash(key_data.data, key_data.size())._hash[0] == bin_key.check);
+            FC_ASSERT(fc::ripemd160::hash(key_data.data, key_data.size())._hash[0] == bin_key.check, "", ("base58str", base58str));
         };
 
         // TODO: This is temporary for testing

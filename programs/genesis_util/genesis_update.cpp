@@ -141,7 +141,7 @@ int main( int argc, char** argv )
       for(uint32_t i=0;i<dev_balance_count;i++)
       {
          genesis_state_type::initial_balance_type bal;
-         bal.owner = address( get_dev_key( "balance-", i ) );
+//         bal.owner = address( get_dev_key( "balance-", i ) );
          bal.asset_symbol = "CORE";
          bal.amount = dev_balance_amount;
          genesis.initial_balances.push_back( bal );

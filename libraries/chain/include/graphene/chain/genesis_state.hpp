@@ -74,7 +74,7 @@ namespace graphene {
                 vector <initial_collateral_position> collateral_records;
             };
             struct initial_balance_type {
-                address owner;
+                string owner;
                 string asset_symbol;
                 share_type amount;
             };

@@ -481,7 +481,7 @@ namespace graphene {
                 const auto get_asset_id = [&assets_by_symbol](const string &symbol) {
                     auto itr = assets_by_symbol.find(symbol);
 
-                    // TODO: This is temporary for handling BTS snapshot
+                    // TODO: This is temporary for handling VIN snapshot
                     if (symbol == "VIN")
                         itr = assets_by_symbol.find(GRAPHENE_SYMBOL);
 
@@ -563,13 +563,21 @@ namespace graphene {
                 }
 
                 // Create initial balances
-                share_type total_allocation;
+//                share_type total_allocation;
+//                for (const auto &handout : genesis_state.initial_balances) {
+//                    const auto asset_id = get_asset_id(handout.asset_symbol);
+//                    create<balance_object>([&handout, &get_asset_id, total_allocation, asset_id](balance_object &b) {
+//                        b.balance = asset(handout.amount, asset_id);
+//                        b.owner = handout.owner;
+//                    });
+//
+//                    total_supplies[asset_id] += handout.amount;
+//                }
+
                 for (const auto &handout : genesis_state.initial_balances) {
                     const auto asset_id = get_asset_id(handout.asset_symbol);
-                    create<balance_object>([&handout, &get_asset_id, total_allocation, asset_id](balance_object &b) {
-                        b.balance = asset(handout.amount, asset_id);
-                        b.owner = handout.owner;
-                    });
+                    auto account_id = get_account_id(handout.owner);
+                    adjust_balance(account_id, asset(handout.amount, asset_id));
 
                     total_supplies[asset_id] += handout.amount;
                 }
