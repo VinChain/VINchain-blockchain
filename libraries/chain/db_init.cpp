@@ -141,6 +141,9 @@ namespace graphene {
         const uint8_t invoice_object::space_id;
         const uint8_t invoice_object::type_id;
 
+        const uint8_t invoice_data_source_object::space_id;
+        const uint8_t invoice_data_source_object::type_id;
+
         const uint8_t invoice_payment_object::space_id;
         const uint8_t invoice_payment_object::type_id;
 
@@ -215,6 +218,7 @@ namespace graphene {
             add_index < primary_index < vindb_block_index > > ();
             add_index < primary_index < invoice_index > > ();
             add_index < primary_index < invoice_payment_index > > ();
+            add_index < primary_index < invoice_data_source_index > > ();
             add_index < primary_index < exclusive_permission_index > > ();
             add_index < primary_index < limit_order_index > > ();
             add_index < primary_index < call_order_index > > ();

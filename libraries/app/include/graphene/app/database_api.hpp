@@ -644,6 +644,10 @@ namespace graphene {
 
             optional <invoice_object> get_invoice_by_report_uuid(const string &report_uuid) const;
 
+            vector <account_object> list_data_sources_from_invoices() const;
+
+            vector <invoice_object> list_invoices_by_data_source(const string &account_name) const;
+
         private:
             std::shared_ptr <database_api_impl> my;
         };
@@ -762,4 +766,6 @@ FC_API( graphene::app::database_api,
         (get_vindb_blocks)
         (get_latest_vindb_block)
         (get_invoice_by_report_uuid)
+        (list_data_sources_from_invoices)
+        (list_invoices_by_data_source)
 )

@@ -54,7 +54,22 @@ namespace graphene {
                     obj.contractor_reward = o.contractor_reward;
                     obj.status = obj.created;
                     obj.records = o.records;
+                    obj.block_num = db().head_block_num() + 1;
                 });
+
+                vector <account_id_type> data_sources;
+
+                for (auto record : new_invoice_object.records) {
+                    if (std::find(data_sources.begin(), data_sources.end(), record.data_source) == data_sources.end()) {
+                        data_sources.push_back(record.data_source);
+
+                        db().create<invoice_data_source_object>([&](invoice_data_source_object &obj) {
+                            obj.invoice = new_invoice_object.get_id();
+                            obj.data_source = record.data_source;
+                        });
+
+                    }
+                }
 
                 return new_invoice_object.id;
 

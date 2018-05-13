@@ -17,6 +17,7 @@ namespace graphene {
 
             uint64_t block_id;
             string block_hash;
+            uint32_t block_num;
         };
 
         struct by_block_id;
@@ -37,5 +38,5 @@ namespace graphene {
 
 FC_REFLECT_DERIVED( graphene::chain::vindb_block_object,
         (graphene::db::object),
-        (block_id)(block_hash)
+        (block_id)(block_hash)(block_num)
 )

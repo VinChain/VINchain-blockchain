@@ -274,6 +274,12 @@ static void get_relevant_accounts(const object *obj, flat_set <account_id_type> 
                 accounts.insert(aobj->from);
                 break;
             }
+            case invoice_data_source_object_type: {
+                const auto &aobj = dynamic_cast<const invoice_data_source_object *>(obj);
+                assert(aobj != nullptr);
+                accounts.insert(aobj->data_source);
+                break;
+            }
             case exclusive_permission_object_type: {
                 const auto &aobj = dynamic_cast<const exclusive_permission_object *>(obj);
                 assert(aobj != nullptr);

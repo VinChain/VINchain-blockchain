@@ -141,6 +141,7 @@ namespace graphene {
             invoice_object_type,
             invoice_payment_object_type,
             exclusive_permission_object_type,
+            invoice_data_source_object_type,
             OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
         };
 
@@ -179,6 +180,8 @@ namespace graphene {
 
         class invoice_payment_object;
 
+        class invoice_data_source_object;
+
         class exclusive_permission_object;
 
         class asset_object;
@@ -213,6 +216,7 @@ namespace graphene {
         typedef object_id <protocol_ids, vindb_block_object_type, vindb_block_object> vindb_block_object_id_type;
         typedef object_id <protocol_ids, invoice_object_type, invoice_object> invoice_object_id_type;
         typedef object_id <protocol_ids, invoice_payment_object_type, invoice_payment_object> invoice_payment_object_id_type;
+        typedef object_id <protocol_ids, invoice_data_source_object_type, invoice_data_source_object> invoice_data_source_object_id_type;
         typedef object_id <protocol_ids, exclusive_permission_object_type, exclusive_permission_object> exclusive_permission_object_id_type;
         typedef object_id <protocol_ids, limit_order_object_type, limit_order_object> limit_order_id_type;
         typedef object_id <protocol_ids, call_order_object_type, call_order_object> call_order_id_type;
@@ -422,6 +426,7 @@ FC_REFLECT_ENUM( graphene::chain::object_type,
         (vesting_balance_object_type)
         (worker_object_type)
         (balance_object_type)
+        (invoice_data_source_object_type)
         (OBJECT_TYPE_COUNT)
 )
 FC_REFLECT_ENUM( graphene::chain::impl_object_type,
@@ -453,6 +458,7 @@ FC_REFLECT_TYPENAME( graphene::chain::witness_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::vindb_block_object_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::invoice_payment_object_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::invoice_object_id_type )
+FC_REFLECT_TYPENAME( graphene::chain::invoice_data_source_object_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::exclusive_permission_object_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::limit_order_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::call_order_id_type )

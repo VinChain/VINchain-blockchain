@@ -216,6 +216,8 @@ namespace graphene {
             vector <vindb_block_object> get_vindb_blocks(const uint64_t &from_block_id, const uint8_t &limit) const;
             optional <vindb_block_object> get_latest_vindb_block() const;
             optional <invoice_object> get_invoice_by_report_uuid(const string &report_uuid) const;
+            vector <account_object> list_data_sources_from_invoices() const;
+            vector <invoice_object> list_invoices_by_data_source(const string &account_name) const;
 
             //private:
             static string price_to_string(const price &_price, const asset_object &_base, const asset_object &_quote);
@@ -2036,6 +2038,61 @@ namespace graphene {
             if (itr != by_report_uuid_idx.end())
                 return *itr;
             return {};
+        };
+
+
+        vector <account_object> database_api::list_data_sources_from_invoices() const {
+            return my->list_data_sources_from_invoices();
+        };
+
+        vector <account_object> database_api_impl::list_data_sources_from_invoices() const {
+            vector <account_id_type> data_sources;
+            vector <account_object> results;
+
+            const auto &by_id_idx = _db.get_index_type<invoice_data_source_index>().indices().get<by_id>();
+            const auto &account_by_id_idx = _db.get_index_type<account_index>().indices().get<by_id>();
+            auto itr = by_id_idx.begin();
+
+            while (itr != by_id_idx.end()) {
+                if (std::find(data_sources.begin(), data_sources.end(), itr->data_source) == data_sources.end()) {
+                    data_sources.push_back(itr->data_source);
+                }
+
+                *itr++;
+            }
+
+            for (auto account_id : data_sources) {
+                auto account_itr = account_by_id_idx.find(account_id);
+                if (account_itr != account_by_id_idx.end())
+                    results.push_back(*account_itr);
+            }
+
+            return results;
+        };
+
+        vector <invoice_object> database_api::list_invoices_by_data_source(const string &account_name) const {
+            return my->list_invoices_by_data_source(account_name);
+        };
+
+        vector <invoice_object> database_api_impl::list_invoices_by_data_source(const string &account_name) const {
+            vector <invoice_object> results;
+            const auto &by_data_source_idx = _db.get_index_type<invoice_data_source_index>().indices().get<by_data_source>();
+            const auto &accounts_by_name = _db.get_index_type<account_index>().indices().get<by_name>();
+            const auto &report_by_id_idx = _db.get_index_type<invoice_index>().indices().get<by_id>();
+
+            auto account_itr = accounts_by_name.find(account_name);
+            if (account_itr == accounts_by_name.end())
+                return results;
+
+            auto data_source_range = by_data_source_idx.equal_range(account_itr->get_id());
+            std::for_each(data_source_range.first, data_source_range.second,
+                          [&](const invoice_data_source_object &record) {
+                              auto invoice_itr = report_by_id_idx.find(record.invoice);
+                              if (invoice_itr != report_by_id_idx.end())
+                                  results.push_back(*invoice_itr);
+                          });
+
+            return results;
         };
 
         //////////////////////////////////////////////////////////////////////

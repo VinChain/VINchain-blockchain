@@ -153,9 +153,14 @@ namespace graphene {
                                 }
                             }
                         } else {
-                            // https://bitsharestalk.org/index.php/topic,23715.0.html
                             vector <string> seeds = {
+                                "52.44.138.87:11012",
+                                "18.205.32.20:11012",
+                                "18.205.82.249:11012",
+                                "18.184.56.212:11012",
+                                "18.197.162.20:11012"
                             };
+
                             for (const string &endpoint_string : seeds) {
                                 try {
                                     std::vector <fc::ip::endpoint> endpoints = resolve_string_to_ip_endpoints(

@@ -30,6 +30,7 @@ namespace graphene {
                         [&](vindb_block_object &obj) {
                             obj.block_id = o.block_id;
                             obj.block_hash = o.block_hash;
+                            obj.block_num = db().head_block_num() + 1;
                         });
 
                 return new_vindb_block_object.id;

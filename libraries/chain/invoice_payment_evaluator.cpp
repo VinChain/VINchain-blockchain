@@ -89,6 +89,7 @@ namespace graphene {
                 const auto &new_ipo = db().create<invoice_payment_object>([&](invoice_payment_object &obj) {
                     obj.from = o.from;
                     obj.report_uuid = o.report_uuid;
+                    obj.block_num = db().head_block_num() + 1;
                 });
 
                 const auto &idx = db().get_index_type<invoice_index>();

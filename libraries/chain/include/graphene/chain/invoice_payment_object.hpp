@@ -17,17 +17,18 @@ namespace graphene {
 
             account_id_type from;
             string report_uuid;
+            uint32_t block_num;
         };
 
         using invoice_payment_multi_index_type = multi_index_container <
-        invoice_payment_object,
-        indexed_by<
+            invoice_payment_object,
+            indexed_by<
                 ordered_unique < tag < by_id>, member<object, object_id_type, &object::id>>
-        >
+            >
         >;
 
         using invoice_payment_index = generic_index<invoice_payment_object, invoice_payment_multi_index_type>;
     }
 } // graphene::chain
 
-FC_REFLECT_DERIVED( graphene::chain::invoice_payment_object, (graphene::db::object), (from)(report_uuid) )
+FC_REFLECT_DERIVED( graphene::chain::invoice_payment_object, (graphene::db::object), (from)(report_uuid)(block_num) )
