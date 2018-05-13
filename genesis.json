@@ -1,5 +1,5 @@
 {
-  "initial_timestamp": "2018-05-12T00:00:00",
+  "initial_timestamp": "2018-05-13T00:00:00",
   "max_core_supply": "840108901000000",
   "initial_parameters": {
     "current_fees": {
@@ -44585,8 +44585,8 @@
   "initial_worker_candidates": [],
   "initial_chain_id": "aa34045518f1469a28fa4578240d5f039afa9959c0b95ce3b39674efa691fb21",
   "immutable_parameters": {
-    "min_committee_member_count": 3,
-    "min_witness_count": 3,
+    "min_committee_member_count": 5,
+    "min_witness_count": 5,
     "num_special_accounts": 0,
     "num_special_assets": 0
   }
