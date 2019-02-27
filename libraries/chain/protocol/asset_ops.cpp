@@ -93,7 +93,6 @@ namespace graphene {
         }
 
         void asset_create_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(is_valid_symbol(symbol));
             common_options.validate();
@@ -152,7 +151,6 @@ namespace graphene {
         }
 
         void asset_issue_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(asset_to_issue.amount.value <= GRAPHENE_MAX_SHARE_SUPPLY);
             FC_ASSERT(asset_to_issue.amount.value > 0);

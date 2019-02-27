@@ -64,11 +64,11 @@ namespace graphene {
         account_whitelist_operation,
         account_upgrade_operation,
         account_transfer_operation,
-        asset_create_operation, // not permitted
+        asset_create_operation,
         asset_update_operation, // not permitted
         asset_update_bitasset_operation, // not permitted
         asset_update_feed_producers_operation, // not permitted
-        asset_issue_operation, // not permitted
+        asset_issue_operation,
         asset_reserve_operation, // not permitted
         asset_fund_fee_pool_operation, // not permitted
         asset_settle_operation, // not permitted

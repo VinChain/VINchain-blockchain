@@ -69,3 +69,5 @@ object_database/*
 *.pyc
 *.pyo
 cmake-build-debug/
+build/
+.vscode/
