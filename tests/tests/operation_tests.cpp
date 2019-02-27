@@ -521,19 +521,19 @@ BOOST_AUTO_TEST_CASE( transfer_core_asset )
 //    }
 // }
 
-BOOST_AUTO_TEST_CASE( create_mia )
-{
-   try {
-      const asset_object& bitusd = create_bitasset( "USDBIT" );
-      BOOST_CHECK(bitusd.symbol == "USDBIT");
-      BOOST_CHECK(bitusd.bitasset_data(db).options.short_backing_asset == asset_id_type());
-      BOOST_CHECK(bitusd.dynamic_asset_data_id(db).current_supply == 0);
-      GRAPHENE_REQUIRE_THROW( create_bitasset("USDBIT"), fc::exception);
-   } catch ( const fc::exception& e ) {
-      elog( "${e}", ("e", e.to_detail_string() ) );
-      throw;
-   }
-}
+// BOOST_AUTO_TEST_CASE( create_mia )
+// {
+//    try {
+//       const asset_object& bitusd = create_bitasset( "USDBIT" );
+//       BOOST_CHECK(bitusd.symbol == "USDBIT");
+//       BOOST_CHECK(bitusd.bitasset_data(db).options.short_backing_asset == asset_id_type());
+//       BOOST_CHECK(bitusd.dynamic_asset_data_id(db).current_supply == 0);
+//       GRAPHENE_REQUIRE_THROW( create_bitasset("USDBIT"), fc::exception);
+//    } catch ( const fc::exception& e ) {
+//       elog( "${e}", ("e", e.to_detail_string() ) );
+//       throw;
+//    }
+// }
 
 // BOOST_AUTO_TEST_CASE( update_mia )
 // {

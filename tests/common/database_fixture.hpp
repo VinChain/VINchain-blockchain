@@ -219,6 +219,7 @@ struct database_fixture {
 
    const asset_object& get_asset( const string& symbol )const;
    const account_object& get_account( const string& name )const;
+   const account_object& get_account( const account_id_type& account_id )const;
    const asset_object& create_bitasset(const string& name,
                                        account_id_type issuer = GRAPHENE_WITNESS_ACCOUNT,
                                        uint16_t market_fee_percent = 100 /*1%*/,

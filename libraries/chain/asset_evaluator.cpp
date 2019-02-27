@@ -107,14 +107,15 @@ namespace graphene {
                         a.fee_pool = core_fee_paid - (fee_is_odd ? 1 : 0);
                     });
 
+                auto next_asset_id = db().get_index_type<asset_index>().get_next_id();
                 asset_bitasset_data_id_type bit_asset_id;
+
                 if (op.bitasset_opts.valid())
                     bit_asset_id = db().create<asset_bitasset_data_object>([&](asset_bitasset_data_object &a) {
                         a.options = *op.bitasset_opts;
                         a.is_prediction_market = op.is_prediction_market;
+                        a.asset_id = next_asset_id;
                     }).id;
-
-                auto next_asset_id = db().get_index_type<asset_index>().get_next_id();
 
                 const asset_object &new_asset =
                         db().create<asset_object>([&](asset_object &a) {

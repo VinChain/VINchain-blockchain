@@ -93,6 +93,8 @@ namespace graphene {
         }
 
         void asset_create_operation::validate() const {
+            FC_ASSERT(!bitasset_opts.valid(), "Creation of Market Pegged Assets is disabled.");
+
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(is_valid_symbol(symbol));
             common_options.validate();

@@ -430,6 +430,14 @@ const account_object& database_fixture::get_account( const string& name )const
    return *itr;
 }
 
+const account_object& database_fixture::get_account( const account_id_type& account_id )const
+{
+   const auto& idx = db.get_index_type<account_index>().indices().get<by_id>();
+   const auto itr = idx.find(account_id);
+   assert( itr != idx.end() );
+   return *itr;
+}
+
 const asset_object& database_fixture::create_bitasset(
    const string& name,
    account_id_type issuer /* = GRAPHENE_WITNESS_ACCOUNT */,
