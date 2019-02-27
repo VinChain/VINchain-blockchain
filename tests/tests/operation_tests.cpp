@@ -521,19 +521,15 @@ BOOST_AUTO_TEST_CASE( transfer_core_asset )
 //    }
 // }
 
-// BOOST_AUTO_TEST_CASE( create_mia )
-// {
-//    try {
-//       const asset_object& bitusd = create_bitasset( "USDBIT" );
-//       BOOST_CHECK(bitusd.symbol == "USDBIT");
-//       BOOST_CHECK(bitusd.bitasset_data(db).options.short_backing_asset == asset_id_type());
-//       BOOST_CHECK(bitusd.dynamic_asset_data_id(db).current_supply == 0);
-//       GRAPHENE_REQUIRE_THROW( create_bitasset("USDBIT"), fc::exception);
-//    } catch ( const fc::exception& e ) {
-//       elog( "${e}", ("e", e.to_detail_string() ) );
-//       throw;
-//    }
-// }
+BOOST_AUTO_TEST_CASE( create_mia )
+{
+   try {
+      GRAPHENE_REQUIRE_THROW( create_bitasset( "USDBIT" ), fc::exception);
+   } catch ( const fc::exception& e ) {
+      elog( "${e}", ("e", e.to_detail_string() ) );
+      throw;
+   }
+}
 
 // BOOST_AUTO_TEST_CASE( update_mia )
 // {
@@ -601,9 +597,8 @@ BOOST_AUTO_TEST_CASE( create_uia )
       creator.symbol = UIA_TEST_SYMBOL;
       creator.common_options.max_supply = 100000000;
       creator.precision = 2;
-      creator.common_options.market_fee_percent = GRAPHENE_MAX_MARKET_FEE_PERCENT/100; /*1%*/
       creator.common_options.issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;
-      creator.common_options.flags = charge_market_fee;
+      creator.common_options.flags = override_authority;
       creator.common_options.core_exchange_rate = price({asset(2),asset(1,asset_id_type(1))});
       trx.operations.push_back(std::move(creator));
       PUSH_TX( db, trx, ~0 );
@@ -611,10 +606,23 @@ BOOST_AUTO_TEST_CASE( create_uia )
       const asset_object& test_asset = test_asset_id(db);
       BOOST_CHECK(test_asset.symbol == UIA_TEST_SYMBOL);
       BOOST_CHECK(asset(1, test_asset_id) * test_asset.options.core_exchange_rate == asset(2));
+
+      BOOST_CHECK((test_asset.options.issuer_permissions & charge_market_fee) == 0);
+      BOOST_CHECK((test_asset.options.issuer_permissions & white_list) == white_list);
+      BOOST_CHECK((test_asset.options.issuer_permissions & override_authority) == override_authority);
+      BOOST_CHECK((test_asset.options.issuer_permissions & transfer_restricted) == transfer_restricted);
+      BOOST_CHECK((test_asset.options.issuer_permissions & disable_force_settle) == 0);
+
+      BOOST_CHECK((test_asset.options.flags & charge_market_fee) == 0);
       BOOST_CHECK((test_asset.options.flags & white_list) == 0);
+      BOOST_CHECK((test_asset.options.flags & transfer_restricted) == 0);
+      BOOST_CHECK((test_asset.options.flags & override_authority) == override_authority);
+      BOOST_CHECK((test_asset.options.flags & disable_force_settle) == 0);
+
       BOOST_CHECK(test_asset.options.max_supply == 100000000);
       BOOST_CHECK(!test_asset.bitasset_data_id.valid());
-      BOOST_CHECK(test_asset.options.market_fee_percent == GRAPHENE_MAX_MARKET_FEE_PERCENT/100);
+      BOOST_CHECK(test_asset.options.market_fee_percent == 0);
+
       GRAPHENE_REQUIRE_THROW(PUSH_TX( db, trx, ~0 ), fc::exception);
 
       const asset_dynamic_data_object& test_asset_dynamic_data = test_asset.dynamic_asset_data_id(db);
@@ -636,6 +644,58 @@ BOOST_AUTO_TEST_CASE( create_uia )
       REQUIRE_THROW_WITH_VALUE(op, symbol, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
       REQUIRE_THROW_WITH_VALUE(op, common_options.core_exchange_rate, price({asset(-100), asset(1)}));
       REQUIRE_THROW_WITH_VALUE(op, common_options.core_exchange_rate, price({asset(100),asset(-1)}));
+   } catch(fc::exception& e) {
+      edump((e.to_detail_string()));
+      throw;
+   }
+}
+
+BOOST_AUTO_TEST_CASE( not_create_uia_with_disabled_permissions )
+{
+   try {
+      asset_id_type test_asset_id = db.get_index<asset_object>().get_next_id();
+      asset_create_operation creator;
+      creator.issuer = account_id_type();
+      creator.fee = asset();
+      creator.symbol = UIA_TEST_SYMBOL;
+      creator.common_options.max_supply = 100000000;
+      creator.precision = 2;
+      creator.common_options.issuer_permissions = charge_market_fee;
+      creator.common_options.flags = charge_market_fee;
+      creator.common_options.core_exchange_rate = price({asset(2),asset(1,asset_id_type(1))});
+      trx.operations.push_back(std::move(creator));
+      GRAPHENE_REQUIRE_THROW(PUSH_TX( db, trx, ~0 ), fc::exception);
+      
+      trx.clear();
+      creator.common_options.issuer_permissions = disable_confidential;
+      creator.common_options.flags = 0;
+      trx.operations.push_back(std::move(creator));
+      GRAPHENE_REQUIRE_THROW(PUSH_TX( db, trx, ~0 ), fc::exception);
+      
+      trx.clear();
+      creator.common_options.issuer_permissions = 
+         charge_market_fee | white_list | override_authority | transfer_restricted | disable_force_settle | global_settle | disable_confidential;
+      creator.common_options.flags = white_list;
+      trx.operations.push_back(std::move(creator));
+      GRAPHENE_REQUIRE_THROW(PUSH_TX( db, trx, ~0 ), fc::exception);
+
+      trx.clear();
+      creator.common_options.issuer_permissions = 0;
+      creator.common_options.flags = 0;
+      trx.operations.push_back(std::move(creator));
+      PUSH_TX( db, trx, ~0 );
+
+      const asset_object& test_asset = test_asset_id(db);
+      BOOST_CHECK(test_asset.symbol == UIA_TEST_SYMBOL);
+      BOOST_CHECK(asset(1, test_asset_id) * test_asset.options.core_exchange_rate == asset(2));
+
+      BOOST_CHECK(test_asset.options.issuer_permissions == 0);
+      BOOST_CHECK(test_asset.options.flags == 0);
+
+      BOOST_CHECK(test_asset.options.max_supply == 100000000);
+      BOOST_CHECK(!test_asset.bitasset_data_id.valid());
+      BOOST_CHECK(test_asset.options.market_fee_percent == 0);
+
    } catch(fc::exception& e) {
       edump((e.to_detail_string()));
       throw;

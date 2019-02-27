@@ -93,19 +93,18 @@ namespace graphene {
         }
 
         void asset_create_operation::validate() const {
-            FC_ASSERT(!bitasset_opts.valid(), "Creation of Market Pegged Assets is disabled.");
+            FC_ASSERT(!bitasset_opts.valid(), "Creation of Market Pegged Assets is disabled.");            
+            FC_ASSERT((!(common_options.issuer_permissions & charge_market_fee)) && (!(common_options.flags & charge_market_fee)), "'charge_market_fee' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & disable_force_settle)) && (!(common_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & global_settle)) && (!(common_options.flags & global_settle)), "'global_settle' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & disable_confidential)) && (!(common_options.flags & disable_confidential)), "'disable_confidential' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & witness_fed_asset)) && (!(common_options.flags & witness_fed_asset)), "'witness_fed_asset' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & committee_fed_asset)) && (!(common_options.flags & committee_fed_asset)), "'committee_fed_asset' permission is disabled.");
+            FC_ASSERT(common_options.market_fee_percent == 0 && !is_prediction_market, "Market fees are disbaled.");
 
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(is_valid_symbol(symbol));
             common_options.validate();
-            if (common_options.issuer_permissions & (disable_force_settle | global_settle))
-                FC_ASSERT(bitasset_opts.valid());
-            if (is_prediction_market) {
-                FC_ASSERT(bitasset_opts.valid(), "Cannot have a User-Issued Asset implement a prediction market.");
-                FC_ASSERT(common_options.issuer_permissions & global_settle);
-            }
-            if (bitasset_opts) bitasset_opts->validate();
-
             asset dummy = asset(1) * common_options.core_exchange_rate;
             FC_ASSERT(dummy.asset_id == asset_id_type(1));
             FC_ASSERT(precision <= 12);

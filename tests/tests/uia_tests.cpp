@@ -51,9 +51,9 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
       creator.symbol = "ADVANCED";
       creator.common_options.max_supply = 100000000;
       creator.precision = 2;
-      creator.common_options.market_fee_percent = GRAPHENE_MAX_MARKET_FEE_PERCENT/100; /*1%*/
-      creator.common_options.issuer_permissions = charge_market_fee|white_list|override_authority|transfer_restricted|disable_confidential;
-      creator.common_options.flags = charge_market_fee|white_list|override_authority|disable_confidential;
+      creator.common_options.market_fee_percent = 0; /*1%*/
+      creator.common_options.issuer_permissions = white_list|override_authority|transfer_restricted;
+      creator.common_options.flags = white_list|override_authority;
       creator.common_options.core_exchange_rate = price({asset(2),asset(1,asset_id_type(1))});
       creator.common_options.whitelist_authorities = creator.common_options.blacklist_authorities = {account_id_type()};
       trx.operations.push_back(std::move(creator));
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
       BOOST_CHECK(test_asset.options.flags & white_list);
       BOOST_CHECK(test_asset.options.max_supply == 100000000);
       BOOST_CHECK(!test_asset.bitasset_data_id.valid());
-      BOOST_CHECK(test_asset.options.market_fee_percent == GRAPHENE_MAX_MARKET_FEE_PERCENT/100);
+      BOOST_CHECK(test_asset.options.market_fee_percent == 0);
 
       const asset_dynamic_data_object& test_asset_dynamic_data = test_asset.dynamic_asset_data_id(db);
       BOOST_CHECK(test_asset_dynamic_data.current_supply == 0);
