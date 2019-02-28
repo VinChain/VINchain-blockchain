@@ -93,14 +93,17 @@ namespace graphene {
         }
 
         void asset_create_operation::validate() const {
-            FC_ASSERT(!bitasset_opts.valid(), "Creation of Market Pegged Assets is disabled.");            
-            FC_ASSERT((!(common_options.issuer_permissions & charge_market_fee)) && (!(common_options.flags & charge_market_fee)), "'charge_market_fee' permission is disabled.");
+            FC_ASSERT(!bitasset_opts.valid(), "Creation of Market Pegged Assets is disabled."); 
+            // uia-specific flags do not allow charging market fees and confidential transactions at the moment           
+            FC_ASSERT(!(common_options.flags & charge_market_fee), "'charge_market_fee' flag is disabled.");
+            FC_ASSERT(!(common_options.flags & disable_confidential), "'disable_confidential' flag is disabled.");
+            FC_ASSERT(common_options.market_fee_percent == 0 && !is_prediction_market, "Market fees are disbaled.");
+
+            // mia-specific permissions are disabled at the moment 
             FC_ASSERT((!(common_options.issuer_permissions & disable_force_settle)) && (!(common_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");
             FC_ASSERT((!(common_options.issuer_permissions & global_settle)) && (!(common_options.flags & global_settle)), "'global_settle' permission is disabled.");
-            FC_ASSERT((!(common_options.issuer_permissions & disable_confidential)) && (!(common_options.flags & disable_confidential)), "'disable_confidential' permission is disabled.");
             FC_ASSERT((!(common_options.issuer_permissions & witness_fed_asset)) && (!(common_options.flags & witness_fed_asset)), "'witness_fed_asset' permission is disabled.");
             FC_ASSERT((!(common_options.issuer_permissions & committee_fed_asset)) && (!(common_options.flags & committee_fed_asset)), "'committee_fed_asset' permission is disabled.");
-            FC_ASSERT(common_options.market_fee_percent == 0 && !is_prediction_market, "Market fees are disbaled.");
 
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(is_valid_symbol(symbol));
@@ -111,13 +114,16 @@ namespace graphene {
         }
 
         void asset_update_operation::validate() const {
-            FC_ASSERT((!(new_options.issuer_permissions & charge_market_fee)) && (!(new_options.flags & charge_market_fee)), "'charge_market_fee' permission is disabled.");
+            // uia-specific flags do not allow charging market fees and confidential transactions at the moment           
+            FC_ASSERT(!(new_options.flags & charge_market_fee), "'charge_market_fee' flag is disabled.");
+            FC_ASSERT(!(new_options.flags & disable_confidential), "'disable_confidential' flag is disabled.");
+            FC_ASSERT(new_options.market_fee_percent == 0, "Market fees are disbaled.");
+
+            // mia-specific permissions are disabled at the moment 
             FC_ASSERT((!(new_options.issuer_permissions & disable_force_settle)) && (!(new_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");
             FC_ASSERT((!(new_options.issuer_permissions & global_settle)) && (!(new_options.flags & global_settle)), "'global_settle' permission is disabled.");
-            FC_ASSERT((!(new_options.issuer_permissions & disable_confidential)) && (!(new_options.flags & disable_confidential)), "'disable_confidential' permission is disabled.");
             FC_ASSERT((!(new_options.issuer_permissions & witness_fed_asset)) && (!(new_options.flags & witness_fed_asset)), "'witness_fed_asset' permission is disabled.");
             FC_ASSERT((!(new_options.issuer_permissions & committee_fed_asset)) && (!(new_options.flags & committee_fed_asset)), "'committee_fed_asset' permission is disabled.");
-            FC_ASSERT(new_options.market_fee_percent == 0, "Market fees are disbaled.");
 
             FC_ASSERT(fee.amount >= 0);
             if (new_issuer)

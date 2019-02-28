@@ -103,7 +103,7 @@ namespace graphene {
                 global_settle | disable_confidential
                 | witness_fed_asset | committee_fed_asset;
         const static uint32_t UIA_ASSET_ISSUER_PERMISSION_MASK =
-                white_list | override_authority | transfer_restricted;
+                charge_market_fee | white_list | override_authority | transfer_restricted | disable_confidential;
 
         enum reserved_spaces {
             relative_protocol_ids = 0,

@@ -503,7 +503,7 @@ const asset_object& database_fixture::create_user_issued_asset( const string& na
    creator.common_options.core_exchange_rate = price({asset(1,asset_id_type(1)),asset(1)});
    creator.common_options.max_supply = GRAPHENE_MAX_SHARE_SUPPLY;
    creator.common_options.flags = 0;
-   creator.common_options.issuer_permissions = 0;
+   creator.common_options.issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;
    trx.operations.push_back(std::move(creator));
    trx.validate();
    processed_transaction ptx = db.push_transaction(trx, ~0);
