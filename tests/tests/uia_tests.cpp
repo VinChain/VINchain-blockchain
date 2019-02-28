@@ -77,64 +77,64 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
    }
 }
 
-// BOOST_AUTO_TEST_CASE( override_transfer_test )
-// { try {
-//    ACTORS( (dan)(eric)(sam) );
-//    const asset_object& advanced = create_user_issued_asset( "ADVANCED", sam, override_authority );
-//    BOOST_TEST_MESSAGE( "Issuing 1000 ADVANCED to dan" );
-//    issue_uia( dan, advanced.amount( 1000 ) );
-//    BOOST_TEST_MESSAGE( "Checking dan's balance" );
-//    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
+BOOST_AUTO_TEST_CASE( override_transfer_test )
+{ try {
+   ACTORS( (dan)(eric)(sam) );
+   const asset_object& advanced = create_user_issued_asset( "ADVANCED", sam, override_authority );
+   BOOST_TEST_MESSAGE( "Issuing 1000 ADVANCED to dan" );
+   issue_uia( dan, advanced.amount( 1000 ) );
+   BOOST_TEST_MESSAGE( "Checking dan's balance" );
+   BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
 
-//    override_transfer_operation otrans;
-//    otrans.issuer = advanced.issuer;
-//    otrans.from = dan.id;
-//    otrans.to   = eric.id;
-//    otrans.amount = advanced.amount(100);
-//    trx.operations.push_back(otrans);
+   override_transfer_operation otrans;
+   otrans.issuer = advanced.issuer;
+   otrans.from = dan.id;
+   otrans.to   = eric.id;
+   otrans.amount = advanced.amount(100);
+   trx.operations.push_back(otrans);
 
-//    BOOST_TEST_MESSAGE( "Require throwing without signature" );
-//    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), tx_missing_active_auth );
-//    BOOST_TEST_MESSAGE( "Require throwing with dan's signature" );
-//    sign( trx,  dan_private_key  );
-//    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), tx_missing_active_auth );
-//    BOOST_TEST_MESSAGE( "Pass with issuer's signature" );
-//    trx.signatures.clear();
-//    sign( trx,  sam_private_key  );
-//    PUSH_TX( db, trx, 0 );
+   BOOST_TEST_MESSAGE( "Require throwing without signature" );
+   GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), tx_missing_active_auth );
+   BOOST_TEST_MESSAGE( "Require throwing with dan's signature" );
+   sign( trx,  dan_private_key  );
+   GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), tx_missing_active_auth );
+   BOOST_TEST_MESSAGE( "Pass with issuer's signature" );
+   trx.signatures.clear();
+   sign( trx,  sam_private_key  );
+   PUSH_TX( db, trx, 0 );
 
-//    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 900 );
-//    BOOST_REQUIRE_EQUAL( get_balance( eric, advanced ), 100 );
-// } FC_LOG_AND_RETHROW() }
+   BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 900 );
+   BOOST_REQUIRE_EQUAL( get_balance( eric, advanced ), 100 );
+} FC_LOG_AND_RETHROW() }
 
-// BOOST_AUTO_TEST_CASE( override_transfer_test2 )
-// { try {
-//    ACTORS( (dan)(eric)(sam) );
-//    const asset_object& advanced = create_user_issued_asset( "ADVANCED", sam, 0 );
-//    issue_uia( dan, advanced.amount( 1000 ) );
-//    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
+BOOST_AUTO_TEST_CASE( override_transfer_test2 )
+{ try {
+   ACTORS( (dan)(eric)(sam) );
+   const asset_object& advanced = create_user_issued_asset( "ADVANCED", sam, 0 );
+   issue_uia( dan, advanced.amount( 1000 ) );
+   BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
 
-//    trx.operations.clear();
-//    override_transfer_operation otrans;
-//    otrans.issuer = advanced.issuer;
-//    otrans.from = dan.id;
-//    otrans.to   = eric.id;
-//    otrans.amount = advanced.amount(100);
-//    trx.operations.push_back(otrans);
+   trx.operations.clear();
+   override_transfer_operation otrans;
+   otrans.issuer = advanced.issuer;
+   otrans.from = dan.id;
+   otrans.to   = eric.id;
+   otrans.amount = advanced.amount(100);
+   trx.operations.push_back(otrans);
 
-//    BOOST_TEST_MESSAGE( "Require throwing without signature" );
-//    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception);
-//    BOOST_TEST_MESSAGE( "Require throwing with dan's signature" );
-//    sign( trx,  dan_private_key  );
-//    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception);
-//    BOOST_TEST_MESSAGE( "Fail because overide_authority flag is not set" );
-//    trx.signatures.clear();
-//    sign( trx,  sam_private_key  );
-//    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception );
+   BOOST_TEST_MESSAGE( "Require throwing without signature" );
+   GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception);
+   BOOST_TEST_MESSAGE( "Require throwing with dan's signature" );
+   sign( trx,  dan_private_key  );
+   GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception);
+   BOOST_TEST_MESSAGE( "Fail because overide_authority flag is not set" );
+   trx.signatures.clear();
+   sign( trx,  sam_private_key  );
+   GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception );
 
-//    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
-//    BOOST_REQUIRE_EQUAL( get_balance( eric, advanced ), 0 );
-// } FC_LOG_AND_RETHROW() }
+   BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
+   BOOST_REQUIRE_EQUAL( get_balance( eric, advanced ), 0 );
+} FC_LOG_AND_RETHROW() }
 
 BOOST_AUTO_TEST_CASE( issue_whitelist_uia )
 {
