@@ -246,8 +246,7 @@ namespace graphene {
                     if (a.is_market_issued() && *o.new_issuer == GRAPHENE_COMMITTEE_ACCOUNT) {
                         const asset_object &backing = a.bitasset_data(d).options.short_backing_asset(d);
                         if (backing.is_market_issued()) {
-                            const asset_object &backing_backing = backing.bitasset_data(d).options.short_backing_asset(
-                                    d);
+                            const asset_object &backing_backing = backing.bitasset_data(d).options.short_backing_asset(d);
                             FC_ASSERT(backing_backing.get_id() == asset_id_type(),
                                       "May not create a blockchain-controlled market asset which is not backed by CORE.");
                         } else
@@ -256,7 +255,7 @@ namespace graphene {
                     }
                 }
 
-                if ((d.head_block_time() < HARDFORK_572_TIME) || (a.dynamic_asset_data_id(d).current_supply != 0)) {
+                if (a.dynamic_asset_data_id(d).current_supply != 0) {
                     // new issuer_permissions must be subset of old issuer permissions
                     FC_ASSERT(!(o.new_options.issuer_permissions & ~a.options.issuer_permissions),
                               "Cannot reinstate previously revoked issuer permissions on an asset.");
@@ -267,7 +266,9 @@ namespace graphene {
                           "Flag change is forbidden by issuer permissions");
 
                 asset_to_update = &a;
-                FC_ASSERT(o.issuer == a.issuer, "", ("o.issuer", o.issuer)("a.issuer", a.issuer));
+                FC_ASSERT(o.issuer == a.issuer, 
+                    "Incorrect issuer for asset! (${o.issuer} != ${a.issuer})", 
+                    ("o.issuer", o.issuer)("a.issuer", a.issuer));
 
                 const auto &chain_parameters = d.get_global_properties().parameters;
 
@@ -587,7 +588,6 @@ namespace graphene {
 
         void_result asset_claim_fees_evaluator::do_evaluate(const asset_claim_fees_operation &o) {
             try {
-                FC_ASSERT(db().head_block_time() > HARDFORK_413_TIME);
                 FC_ASSERT(o.amount_to_claim.asset_id(db()).issuer == o.issuer,
                           "Asset fees may only be claimed by the issuer");
                 return void_result();

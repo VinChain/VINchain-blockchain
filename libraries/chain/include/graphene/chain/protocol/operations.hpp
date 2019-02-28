@@ -65,12 +65,12 @@ namespace graphene {
         account_upgrade_operation,
         account_transfer_operation,
         asset_create_operation,
-        asset_update_operation, // not permitted
+        asset_update_operation,
         asset_update_bitasset_operation, // not permitted
         asset_update_feed_producers_operation, // not permitted
         asset_issue_operation,
-        asset_reserve_operation, // not permitted
-        asset_fund_fee_pool_operation, // not permitted
+        asset_reserve_operation,
+        asset_fund_fee_pool_operation,
         asset_settle_operation, // not permitted
         asset_global_settle_operation, // not permitted
         asset_publish_feed_operation, // not permitted
@@ -97,7 +97,7 @@ namespace graphene {
         blind_transfer_operation, // not permitted
         transfer_from_blind_operation, // not permitted
         asset_settle_cancel_operation,  // VIRTUAL
-        asset_claim_fees_operation, // not permitted
+        asset_claim_fees_operation,
         fba_distribute_operation,       // VIRTUAL
         bid_collateral_operation, // not permitted
         execute_bid_operation,           // VIRTUAL

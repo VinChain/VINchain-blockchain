@@ -111,7 +111,14 @@ namespace graphene {
         }
 
         void asset_update_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
+            FC_ASSERT((!(new_options.issuer_permissions & charge_market_fee)) && (!(new_options.flags & charge_market_fee)), "'charge_market_fee' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & disable_force_settle)) && (!(new_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & global_settle)) && (!(new_options.flags & global_settle)), "'global_settle' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & disable_confidential)) && (!(new_options.flags & disable_confidential)), "'disable_confidential' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & witness_fed_asset)) && (!(new_options.flags & witness_fed_asset)), "'witness_fed_asset' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & committee_fed_asset)) && (!(new_options.flags & committee_fed_asset)), "'committee_fed_asset' permission is disabled.");
+            FC_ASSERT(new_options.market_fee_percent == 0, "Market fees are disbaled.");
+
             FC_ASSERT(fee.amount >= 0);
             if (new_issuer)
                 FC_ASSERT(issuer != *new_issuer);
@@ -145,7 +152,6 @@ namespace graphene {
         }
 
         void asset_reserve_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount_to_reserve.amount.value <= GRAPHENE_MAX_SHARE_SUPPLY);
             FC_ASSERT(amount_to_reserve.amount.value > 0);
@@ -159,7 +165,6 @@ namespace graphene {
         }
 
         void asset_fund_fee_pool_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(fee.asset_id == asset_id_type());
             FC_ASSERT(amount > 0);
@@ -220,7 +225,6 @@ namespace graphene {
         }
 
         void asset_claim_fees_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount_to_claim.amount > 0);
         }

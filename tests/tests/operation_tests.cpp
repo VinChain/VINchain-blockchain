@@ -1368,87 +1368,68 @@ BOOST_AUTO_TEST_CASE( issue_uia )
  *  Reserve asset test should make sure that all assets except bitassets
  *  can be burned, and all supplies add up.
  */
-// BOOST_AUTO_TEST_CASE( reserve_asset_test )
-// {
-//    try
-//    {
-//       ACTORS((alice)(bob)(sam)(judge));
-//       const auto& basset = create_bitasset("USDBIT", judge_id);
-//       const auto& uasset = create_user_issued_asset(UIA_TEST_SYMBOL);
-//       const auto& passet = create_prediction_market("PMARK", judge_id);
-//       const auto& casset = asset_id_type()(db);
+BOOST_AUTO_TEST_CASE( reserve_asset_test )
+{
+   try
+   {
+      ACTORS((alice)(bob)(sam)(judge));
+      const auto& uasset = create_user_issued_asset(UIA_TEST_SYMBOL);
+      const auto& casset = asset_id_type()(db);
 
-//       auto reserve_asset = [&]( account_id_type payer, asset amount_to_reserve )
-//       {
-//          asset_reserve_operation op;
-//          op.payer = payer;
-//          op.amount_to_reserve = amount_to_reserve;
-//          transaction tx;
-//          tx.operations.push_back( op );
-//          set_expiration( db, tx );
-//          db.push_transaction( tx, database::skip_authority_check | database::skip_tapos_check | database::skip_transaction_signatures );
-//       } ;
+      auto reserve_asset = [&]( account_id_type payer, asset amount_to_reserve )
+      {
+         asset_reserve_operation op;
+         op.payer = payer;
+         op.amount_to_reserve = amount_to_reserve;
+         transaction tx;
+         tx.operations.push_back( op );
+         set_expiration( db, tx );
+         db.push_transaction( tx, database::skip_authority_check | database::skip_tapos_check | database::skip_transaction_signatures );
+      } ;
 
-//       auto _issue_uia = [&]( const account_object& recipient, asset amount )
-//       {
-//          asset_issue_operation op;
-//          op.issuer = amount.asset_id(db).issuer;
-//          op.asset_to_issue = amount;
-//          op.issue_to_account = recipient.id;
-//          transaction tx;
-//          tx.operations.push_back( op );
-//          set_expiration( db, tx );
-//          db.push_transaction( tx, database::skip_authority_check | database::skip_tapos_check | database::skip_transaction_signatures );
-//       } ;
+      auto _issue_uia = [&]( const account_object& recipient, asset amount )
+      {
+         asset_issue_operation op;
+         op.issuer = amount.asset_id(db).issuer;
+         op.asset_to_issue = amount;
+         op.issue_to_account = recipient.id;
+         transaction tx;
+         tx.operations.push_back( op );
+         set_expiration( db, tx );
+         db.push_transaction( tx, database::skip_authority_check | database::skip_tapos_check | database::skip_transaction_signatures );
+      } ;
 
-//       int64_t init_balance = 10000;
-//       int64_t reserve_amount = 3000;
-//       share_type initial_reserve;
+      int64_t init_balance = 10000;
+      int64_t reserve_amount = 3000;
+      share_type initial_reserve;
 
-//       BOOST_TEST_MESSAGE( "Test reserve operation on core asset" );
-//       transfer( committee_account, alice_id, casset.amount( init_balance ) );
+      BOOST_TEST_MESSAGE( "Test reserve operation on core asset" );
+      transfer( committee_account, alice_id, casset.amount( init_balance ) );
 
-//       initial_reserve = casset.reserved( db );
-//       reserve_asset( alice_id, casset.amount( reserve_amount  ) );
-//       BOOST_CHECK_EQUAL( get_balance( alice, casset ), init_balance - reserve_amount );
-//       BOOST_CHECK_EQUAL( (casset.reserved( db ) - initial_reserve).value, reserve_amount );
-//       verify_asset_supplies(db);
+      initial_reserve = casset.reserved( db );
+      reserve_asset( alice_id, casset.amount( reserve_amount  ) );
+      BOOST_CHECK_EQUAL( get_balance( alice, casset ), init_balance - reserve_amount );
+      BOOST_CHECK_EQUAL( (casset.reserved( db ) - initial_reserve).value, reserve_amount );
+      verify_asset_supplies(db);
 
-//       BOOST_TEST_MESSAGE( "Test reserve operation on market issued asset" );
-//       transfer( committee_account, alice_id, casset.amount( init_balance*100 ) );
-//       update_feed_producers( basset, {sam.id} );
-//       price_feed current_feed;
-//       current_feed.settlement_price = basset.amount( 2 ) / casset.amount(100);
-//       current_feed.maintenance_collateral_ratio = 1750; // need to set this explicitly, testnet has a different default
-//       publish_feed( basset, sam, current_feed );
-//       borrow( alice_id, basset.amount( init_balance ), casset.amount( 100*init_balance ) );
-//       BOOST_CHECK_EQUAL( get_balance( alice, basset ), init_balance );
+      BOOST_TEST_MESSAGE( "Test reserve operation on user issued asset" );
+      _issue_uia( alice, uasset.amount( init_balance ) );
+      BOOST_CHECK_EQUAL( get_balance( alice, uasset ), init_balance );
+      verify_asset_supplies(db);
 
-//       GRAPHENE_REQUIRE_THROW( reserve_asset( alice_id, basset.amount( reserve_amount ) ), asset_reserve_invalid_on_mia );
-
-//       BOOST_TEST_MESSAGE( "Test reserve operation on prediction market asset" );
-//       transfer( committee_account, alice_id, casset.amount( init_balance ) );
-//       borrow( alice_id, passet.amount( init_balance ), casset.amount( init_balance ) );
-//       GRAPHENE_REQUIRE_THROW( reserve_asset( alice_id, passet.amount( reserve_amount ) ), asset_reserve_invalid_on_mia );
-
-//       BOOST_TEST_MESSAGE( "Test reserve operation on user issued asset" );
-//       _issue_uia( alice, uasset.amount( init_balance ) );
-//       BOOST_CHECK_EQUAL( get_balance( alice, uasset ), init_balance );
-//       verify_asset_supplies(db);
-
-//       BOOST_TEST_MESSAGE( "Reserving asset" );
-//       initial_reserve = uasset.reserved( db );
-//       reserve_asset( alice_id, uasset.amount( reserve_amount  ) );
-//       BOOST_CHECK_EQUAL( get_balance( alice, uasset ), init_balance - reserve_amount );
-//       BOOST_CHECK_EQUAL( (uasset.reserved( db ) - initial_reserve).value, reserve_amount );
-//       verify_asset_supplies(db);
-//    }
-//    catch (fc::exception& e)
-//    {
-//       edump((e.to_detail_string()));
-//       throw;
-//    }
-// }
+      BOOST_TEST_MESSAGE( "Reserving asset" );
+      initial_reserve = uasset.reserved( db );
+      reserve_asset( alice_id, uasset.amount( reserve_amount  ) );
+      BOOST_CHECK_EQUAL( get_balance( alice, uasset ), init_balance - reserve_amount );
+      BOOST_CHECK_EQUAL( (uasset.reserved( db ) - initial_reserve).value, reserve_amount );
+      verify_asset_supplies(db);
+   }
+   catch (fc::exception& e)
+   {
+      edump((e.to_detail_string()));
+      throw;
+   }
+}
 
 /**
  * This test demonstrates how using the call_order_update_operation to

@@ -48,11 +48,9 @@ namespace graphene {
                         return false;
                 }
 
-                if (d.head_block_time() > HARDFORK_415_TIME) {
-                    if (asset_obj.options.whitelist_authorities.size() == 0)
-                        return true;
-                }
-
+                if (asset_obj.options.whitelist_authorities.size() == 0)
+                    return true;
+                
                 for (const auto id : acct.whitelisting_accounts) {
                     if (asset_obj.options.whitelist_authorities.find(id) !=
                         asset_obj.options.whitelist_authorities.end())
