@@ -118,25 +118,25 @@ BOOST_AUTO_TEST_CASE( get_potential_signatures_owner_and_active ) {
    } FC_LOG_AND_RETHROW()
 }
 
-// BOOST_AUTO_TEST_CASE( get_potential_signatures_other ) {
-//    try {
-//       fc::ecc::private_key priv_key1 = fc::ecc::private_key::regenerate(fc::digest("key1"));
-//       public_key_type pub_key1( priv_key1.get_public_key() );
+BOOST_AUTO_TEST_CASE( get_potential_signatures_other ) {
+   try {
+      fc::ecc::private_key priv_key1 = fc::ecc::private_key::regenerate(fc::digest("key1"));
+      public_key_type pub_key1( priv_key1.get_public_key() );
 
-//       const account_object& nathan = create_account( "nathan" );
+      const account_object& nathan = create_account( "nathan" );
 
-//       balance_claim_operation op;
-//       op.deposit_to_account = nathan.id;
-//       op.balance_owner_key = pub_key1;
-//       trx.operations.push_back(op);
+      balance_claim_operation op;
+      op.deposit_to_account = nathan.id;
+      op.balance_owner_key = pub_key1;
+      trx.operations.push_back(op);
 
-//       graphene::app::database_api db_api(db);
-//       set<public_key_type> pub_keys = db_api.get_potential_signatures( trx );
+      graphene::app::database_api db_api(db);
+      set<public_key_type> pub_keys = db_api.get_potential_signatures( trx );
 
-//       BOOST_CHECK( pub_keys.find( pub_key1 ) != pub_keys.end() );
+      BOOST_CHECK( pub_keys.find( pub_key1 ) != pub_keys.end() );
 
-//    } FC_LOG_AND_RETHROW()
-// }
+   } FC_LOG_AND_RETHROW()
+}
 
 BOOST_AUTO_TEST_CASE( get_required_signatures_owner_or_active ) {
    try {

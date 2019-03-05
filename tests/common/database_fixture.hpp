@@ -237,7 +237,8 @@ struct database_fixture {
 
    const account_object& create_account(
       const string& name,
-      const public_key_type& key = public_key_type()
+      const public_key_type& key = public_key_type(),
+      const bool with_all_permissions = true
       );
 
    const account_object& create_account(
@@ -245,7 +246,8 @@ struct database_fixture {
       const account_object& registrar,
       const account_object& referrer,
       uint8_t referrer_percent = 100,
-      const public_key_type& key = public_key_type()
+      const public_key_type& key = public_key_type(),
+      const bool with_all_permissions = true
       );
 
    const account_object& create_account(
@@ -253,8 +255,17 @@ struct database_fixture {
       const private_key_type& key,
       const account_id_type& registrar_id = account_id_type(),
       const account_id_type& referrer_id = account_id_type(),
-      uint8_t referrer_percent = 100
+      uint8_t referrer_percent = 100,
+      const bool with_all_permissions = true
       );
+
+   void grant_permissions_for_account(const account_object& account, const vector<string>& permissions = {
+         "give_exclusive_permission", 
+         "committee_member_create", 
+         "invoice_create", 
+         "vindb_block_create", 
+         "witness_create"
+   });
 
    const committee_member_object& create_committee_member( const account_object& owner );
    const witness_object& create_witness(account_id_type owner,

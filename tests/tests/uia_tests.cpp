@@ -432,7 +432,6 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
       GRAPHENE_REQUIRE_THROW( create_user_issued_asset( "ALPHA", alice_id(db), 0 ), fc::exception );
       BOOST_CHECK(  has_asset("ALPHA") );    BOOST_CHECK( !has_asset("ALPHA.ONE") );
 
-      generate_blocks( fc::time_point_sec( 1445558400 ) );
       generate_block();
 
       // Bob can't create ALPHA.ONE
