@@ -1027,9 +1027,6 @@ BOOST_AUTO_TEST_CASE( create_uia_with_rounding )
       }
 
       verify_asset_supplies( db );
-
-      // generate_blocks(fc::time_point_sec( 1512747600 ) + 10);
-
       {
          signed_transaction tx;
          asset_create_operation op;
