@@ -2088,7 +2088,19 @@ namespace graphene {
 
                         signed_transaction tx;
                         tx.operations.push_back(xfer_op);
-                        set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+
+                        auto gprops = _remote_db->get_global_properties().parameters;
+                        if (asset_obj->get_id() != asset_id_type()) {
+                            auto fee = gprops.current_fees->set_fee(tx.operations.back(), asset_obj->options.core_exchange_rate);
+
+                            FC_ASSERT((fee * asset_obj->options.core_exchange_rate).amount <=
+                                    get_object<asset_dynamic_data_object>(asset_obj->dynamic_asset_data_id).fee_pool,
+                                    "Cannot pay fees in ${asset}, as this asset's fee pool is insufficiently funded.",
+                                    ("asset", asset_obj->symbol));
+                        } else {
+                            gprops.current_fees->set_fee(tx.operations.back());
+                        }
+
                         tx.validate();
 
                         return sign_transaction(tx, broadcast);
