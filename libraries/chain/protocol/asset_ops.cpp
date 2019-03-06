@@ -158,6 +158,7 @@ namespace graphene {
         }
 
         void asset_reserve_operation::validate() const {
+            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount_to_reserve.amount.value <= GRAPHENE_MAX_SHARE_SUPPLY);
             FC_ASSERT(amount_to_reserve.amount.value > 0);

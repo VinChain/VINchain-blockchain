@@ -148,7 +148,7 @@ namespace graphene {
                 const database &d = db();
 
                 permissions_validator pv;
-                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_issue"), 
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_create"), 
                     "Could not issue the asset due to lack of permissions.");
 
                 const asset_object &a = o.asset_to_issue.asset_id(d);
@@ -184,7 +184,7 @@ namespace graphene {
                 const database &d = db();
 
                 permissions_validator pv;
-                FC_ASSERT(pv.check_permissions_for_operation(d, o.payer, "asset_reserve"), 
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.payer, "asset_create"), 
                     "Could not reserve the asset due to lack of permissions.");
 
                 const asset_object &a = o.amount_to_reserve.asset_id(d);
@@ -224,7 +224,7 @@ namespace graphene {
                 database &d = db();
 
                 permissions_validator pv;
-                FC_ASSERT(pv.check_permissions_for_operation(d, o.from_account, "asset_fund_fee_pool"), 
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.from_account, "asset_create"), 
                     "Could not fund the asset fee pool due to lack of permissions.");
 
                 const asset_object &a = o.asset_id(d);
@@ -254,7 +254,7 @@ namespace graphene {
                 database &d = db();
 
                 permissions_validator pv;
-                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_update"), 
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_create"), 
                     "Could not update the asset due to lack of permissions.");
 
                 const asset_object &a = o.asset_to_update(d);
@@ -612,7 +612,7 @@ namespace graphene {
 
                 database &d = db();
                 permissions_validator pv;
-                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_claim_fees"), 
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_create"), 
                     "Could not claim fees from the asset pool due to lack of permissions.");
 
                 FC_ASSERT(o.amount_to_claim.asset_id(db()).issuer == o.issuer,

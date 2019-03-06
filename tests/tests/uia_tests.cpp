@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
 BOOST_AUTO_TEST_CASE( override_transfer_test )
 { try {
    ACTORS( (dan)(eric)(sam) );
-   grant_permissions_for_account(sam_id(db), {"asset_create", "asset_issue", "override_transfer"});
+   grant_permissions_for_account(sam_id(db), {"asset_create"});
    const asset_object& advanced = create_user_issued_asset( "ADVANCED", sam, override_authority );
    BOOST_TEST_MESSAGE( "Issuing 1000 ADVANCED to dan" );
    issue_uia( dan, advanced.amount( 1000 ) );
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( override_transfer_test )
 BOOST_AUTO_TEST_CASE( override_transfer_test2 )
 { try {
    ACTORS( (dan)(eric)(sam) );
-   grant_permissions_for_account(sam_id(db), {"asset_create", "asset_issue", "override_transfer"});
+   grant_permissions_for_account(sam_id(db), {"asset_create"});
    const asset_object& advanced = create_user_issued_asset( "ADVANCED", sam, 0 );
    issue_uia( dan, advanced.amount( 1000 ) );
    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( issue_whitelist_uia )
 {
    try {
       account_id_type izzy_id = create_account("izzy").id;
-      grant_permissions_for_account(izzy_id(db), {"asset_create", "asset_update", "asset_issue"});
+      grant_permissions_for_account(izzy_id(db), {"asset_create"});
       const asset_id_type uia_id = create_user_issued_asset(
          "ADVANCED", izzy_id(db), white_list ).id;
       account_id_type nathan_id = create_account("nathan").id;
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( issue_whitelist_uia )
    }
 }
 
-BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
+BOOST_AUTO_TEST_CASE( transfer_whitelist_uia, * boost::unit_test::disabled() )
 {
    try {
       INVOKE(issue_whitelist_uia);
@@ -220,9 +220,6 @@ BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
       const account_object& nathan = get_account("nathan");
       const account_object& dan = create_account("dan");
       account_id_type izzy_id = get_account("izzy").id;
-      grant_permissions_for_account(izzy_id(db), {"asset_update"});
-      grant_permissions_for_account(nathan, {"asset_reserve"});
-      grant_permissions_for_account(dan, {"asset_reserve"});
 
       upgrade_to_lifetime_member(dan);
       trx.clear();
@@ -356,7 +353,7 @@ BOOST_AUTO_TEST_CASE( transfer_restricted_test )
    try
    {
       ACTORS( (sam)(alice)(bob) );
-      grant_permissions_for_account(sam_id(db), {"asset_create", "asset_update", "asset_issue"});
+      grant_permissions_for_account(sam_id(db), {"asset_create"});
 
       BOOST_TEST_MESSAGE( "Issuing 1000 UIA to Alice" );
 

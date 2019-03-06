@@ -261,13 +261,7 @@ struct database_fixture {
          "invoice_create", 
          "vindb_block_create", 
          "witness_create",
-         "asset_create",
-         "asset_update",
-         "asset_issue",
-         "asset_reserve",
-         "asset_fund_fee_pool",
-         "override_transfer",
-         "asset_claim_fees"
+         "asset_create"
    });
 
    const committee_member_object& create_committee_member( const account_object& owner );

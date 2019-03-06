@@ -98,7 +98,7 @@ namespace graphene {
                 const database &d = db();
 
                 permissions_validator pv;
-                FC_ASSERT(pv.check_permissions_for_operation(d, op.issuer, "override_transfer"), 
+                FC_ASSERT(pv.check_permissions_for_operation(d, op.issuer, "asset_create"), 
                     "Could not override transfer due to lack of permissions.");
 
                 const asset_object &asset_type = op.amount.asset_id(d);

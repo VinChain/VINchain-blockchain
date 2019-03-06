@@ -1724,13 +1724,12 @@ BOOST_AUTO_TEST_CASE(transfer_with_memo) {
    } FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE(zero_second_vbo)
+BOOST_AUTO_TEST_CASE(zero_second_vbo, * boost::unit_test::disabled() )
 {
    try
    {
       ACTOR(alice);
       // don't pay witnesses so we have some worker budget to work with
-      grant_permissions_for_account(alice_id(db), {"asset_reserve"});
 
       transfer(account_id_type(), alice_id, asset(int64_t(100000) * 1100 * 1000 * 1000));
       {
@@ -1848,7 +1847,7 @@ BOOST_AUTO_TEST_CASE( vbo_withdraw_different )
    try
    {
       ACTORS((alice)(izzy));
-      grant_permissions_for_account(izzy_id(db), {"asset_create", "asset_issue"});
+      grant_permissions_for_account(izzy_id(db), {"asset_create"});
       // don't pay witnesses so we have some worker budget to work with
       generate_block();
       // transfer(account_id_type(), alice_id, asset(1000));
@@ -1922,7 +1921,7 @@ BOOST_AUTO_TEST_CASE( vbo_withdraw_different )
 BOOST_AUTO_TEST_CASE( top_n_special )
 {
    ACTORS( (alice)(bob)(chloe)(dan)(izzy)(stan) );
-   grant_permissions_for_account(izzy_id(db), {"asset_create", "asset_issue"});
+   grant_permissions_for_account(izzy_id(db), {"asset_create"});
 
    generate_blocks( HARDFORK_516_TIME );
    generate_blocks( HARDFORK_599_TIME );

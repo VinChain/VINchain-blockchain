@@ -1055,7 +1055,7 @@ BOOST_AUTO_TEST_CASE( issue_433_test )
    try
    {
       ACTORS((alice));
-      grant_permissions_for_account(alice_id(db), {"asset_create", "asset_issue", "asset_fund_fee_pool"});
+      grant_permissions_for_account(alice_id(db), {"asset_create"});
 
       auto& core = asset_id_type()(db);
 

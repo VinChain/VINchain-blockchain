@@ -590,7 +590,7 @@ BOOST_AUTO_TEST_CASE( update_mia, * boost::unit_test::disabled() )
 BOOST_AUTO_TEST_CASE( create_uia )
 {
    try {
-      grant_permissions_for_account(account_id_type()(db), {"asset_create", "asset_update", "asset_issue"});
+      grant_permissions_for_account(account_id_type()(db), {"asset_create"});
       asset_id_type test_asset_id = db.get_index<asset_object>().get_next_id();
       asset_create_operation creator;
       creator.issuer = account_id_type();
@@ -713,7 +713,7 @@ BOOST_AUTO_TEST_CASE( update_uia )
       const auto& test = get_asset(UIA_TEST_SYMBOL);
       const auto& nathan = create_account("nathan");
       const auto& bob = create_account("bob");
-      grant_permissions_for_account(nathan, {"asset_update"});
+      grant_permissions_for_account(nathan, {"asset_create"});
       issue_uia(bob, test.amount(5));
 
       asset_update_operation op;
@@ -1023,7 +1023,7 @@ BOOST_AUTO_TEST_CASE( uia_fees )
 {
    try {
       INVOKE( issue_uia );
-      grant_permissions_for_account(account_id_type()(db), {"asset_fund_fee_pool"});
+      grant_permissions_for_account(account_id_type()(db), {"asset_create"});
 
       enable_fees();
 
@@ -1377,13 +1377,11 @@ BOOST_AUTO_TEST_CASE( witness_pay_test, * boost::unit_test::disabled() )
  *  Reserve asset test should make sure that all assets except bitassets
  *  can be burned, and all supplies add up.
  */
-BOOST_AUTO_TEST_CASE( reserve_asset_test )
+BOOST_AUTO_TEST_CASE( reserve_asset_test, * boost::unit_test::disabled() )
 {
    try
    {
       ACTORS((alice)(bob)(sam)(judge));
-      grant_permissions_for_account(account_id_type()(db), {"asset_create", "asset_issue", "asset_reserve"});
-      grant_permissions_for_account(alice_id(db), {"asset_reserve"});
 
       const auto& uasset = create_user_issued_asset(UIA_TEST_SYMBOL);
       const auto& casset = asset_id_type()(db);
