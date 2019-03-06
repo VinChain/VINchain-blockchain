@@ -97,7 +97,7 @@ namespace graphene {
             // uia-specific flags do not allow charging market fees and confidential transactions at the moment           
             FC_ASSERT(!(common_options.flags & charge_market_fee), "'charge_market_fee' flag is disabled.");
             FC_ASSERT(!(common_options.flags & disable_confidential), "'disable_confidential' flag is disabled.");
-            FC_ASSERT(common_options.market_fee_percent == 0 && !is_prediction_market, "Market fees are disbaled.");
+            FC_ASSERT(common_options.market_fee_percent == 0 && common_options.max_market_fee == 0 && !is_prediction_market, "Market fees are disbaled.");
 
             // mia-specific permissions are disabled at the moment 
             FC_ASSERT((!(common_options.issuer_permissions & disable_force_settle)) && (!(common_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");
@@ -117,7 +117,7 @@ namespace graphene {
             // uia-specific flags do not allow charging market fees and confidential transactions at the moment           
             FC_ASSERT(!(new_options.flags & charge_market_fee), "'charge_market_fee' flag is disabled.");
             FC_ASSERT(!(new_options.flags & disable_confidential), "'disable_confidential' flag is disabled.");
-            FC_ASSERT(new_options.market_fee_percent == 0, "Market fees are disbaled.");
+            FC_ASSERT(new_options.market_fee_percent == 0 && new_options.max_market_fee == 0, "Market fees are disbaled.");
 
             // mia-specific permissions are disabled at the moment 
             FC_ASSERT((!(new_options.issuer_permissions & disable_force_settle)) && (!(new_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");

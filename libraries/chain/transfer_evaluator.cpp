@@ -26,6 +26,7 @@
 #include <graphene/chain/exceptions.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/is_authorized_asset.hpp>
+#include <graphene/chain/permissions_validator.hpp>
 
 namespace graphene {
     namespace chain {
@@ -95,6 +96,10 @@ namespace graphene {
         void_result override_transfer_evaluator::do_evaluate(const override_transfer_operation &op) {
             try {
                 const database &d = db();
+
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, op.issuer, "override_transfer"), 
+                    "Could not override transfer due to lack of permissions.");
 
                 const asset_object &asset_type = op.amount.asset_id(d);
                 GRAPHENE_ASSERT(

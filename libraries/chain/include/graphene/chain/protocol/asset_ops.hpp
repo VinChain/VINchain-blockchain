@@ -45,7 +45,7 @@ namespace graphene {
             /// in this field means a 1% fee is charged on market trades of this asset.
             uint16_t market_fee_percent = 0;
             /// Market fees calculated as @ref market_fee_percent of the traded volume are capped to this value
-            share_type max_market_fee = GRAPHENE_MAX_SHARE_SUPPLY;
+            share_type max_market_fee = 0;
 
             /// The flags which the issuer has permission to update. See @ref asset_issuer_permission_flags
             uint16_t issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;

@@ -590,6 +590,7 @@ BOOST_AUTO_TEST_CASE( update_mia, * boost::unit_test::disabled() )
 BOOST_AUTO_TEST_CASE( create_uia )
 {
    try {
+      grant_permissions_for_account(account_id_type()(db), {"asset_create", "asset_update", "asset_issue"});
       asset_id_type test_asset_id = db.get_index<asset_object>().get_next_id();
       asset_create_operation creator;
       creator.issuer = account_id_type();
@@ -653,6 +654,7 @@ BOOST_AUTO_TEST_CASE( create_uia )
 BOOST_AUTO_TEST_CASE( not_create_uia_with_disabled_flags )
 {
    try {
+      grant_permissions_for_account(account_id_type()(db), {"asset_create"});
       asset_id_type test_asset_id = db.get_index<asset_object>().get_next_id();
       asset_create_operation creator;
       creator.issuer = account_id_type();
@@ -711,6 +713,7 @@ BOOST_AUTO_TEST_CASE( update_uia )
       const auto& test = get_asset(UIA_TEST_SYMBOL);
       const auto& nathan = create_account("nathan");
       const auto& bob = create_account("bob");
+      grant_permissions_for_account(nathan, {"asset_update"});
       issue_uia(bob, test.amount(5));
 
       asset_update_operation op;
@@ -1020,6 +1023,7 @@ BOOST_AUTO_TEST_CASE( uia_fees )
 {
    try {
       INVOKE( issue_uia );
+      grant_permissions_for_account(account_id_type()(db), {"asset_fund_fee_pool"});
 
       enable_fees();
 
@@ -1028,7 +1032,7 @@ BOOST_AUTO_TEST_CASE( uia_fees )
       const account_object& nathan_account = get_account("nathan");
       const account_object& committee_account = account_id_type()(db);
       const share_type prec = asset::scaled_precision( asset_id_type()(db).precision );
-
+      
       fund_fee_pool(committee_account, test_asset, 1000*prec);
       BOOST_CHECK(asset_dynamic.fee_pool == 1000*prec);
 
@@ -1378,6 +1382,9 @@ BOOST_AUTO_TEST_CASE( reserve_asset_test )
    try
    {
       ACTORS((alice)(bob)(sam)(judge));
+      grant_permissions_for_account(account_id_type()(db), {"asset_create", "asset_issue", "asset_reserve"});
+      grant_permissions_for_account(alice_id(db), {"asset_reserve"});
+
       const auto& uasset = create_user_issued_asset(UIA_TEST_SYMBOL);
       const auto& casset = asset_id_type()(db);
 

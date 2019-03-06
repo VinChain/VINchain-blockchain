@@ -990,6 +990,7 @@ BOOST_AUTO_TEST_CASE( create_uia_with_rounding )
    try
    {
       ACTORS((alice));
+      grant_permissions_for_account(alice_id(db), {"asset_create"});
 
       transfer( committee_account, alice_id, asset( 1000000 * asset::scaled_precision( asset_id_type()(db).precision ) ) );
 
@@ -1054,6 +1055,7 @@ BOOST_AUTO_TEST_CASE( issue_433_test )
    try
    {
       ACTORS((alice));
+      grant_permissions_for_account(alice_id(db), {"asset_create", "asset_issue", "asset_fund_fee_pool"});
 
       auto& core = asset_id_type()(db);
 

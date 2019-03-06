@@ -376,13 +376,45 @@ account_create_operation database_fixture::make_account(
 
 
 void database_fixture::grant_permissions_for_account(const account_object& account, const vector<string>& permissions) {
-   for (auto const& permission: permissions) {
-      db.create<exclusive_permission_object>(
-         [&](exclusive_permission_object &obj) {
-            obj.account = account.id;
-            obj.permission = permission;
-         });
+   
+   const auto &idx = db.get_index_type<exclusive_permission_index>();
+   const auto &by_id_idx = idx.indices().get<by_id>();
+
+   auto grantor_id = account_id_type();
+   auto grantor_permission_itr = std::find_if(by_id_idx.begin(), by_id_idx.end(),
+      [&](const exclusive_permission_object &record) {
+         return record.permission == "give_exclusive_permission";
+      });
+
+   if (grantor_permission_itr == by_id_idx.end()) { 
+      // make committee-account admin by default
+      trx.operations.clear();
+      give_exclusive_permission_operation op;
+      op.from = account_id_type();
+      op.to = account_id_type();
+      op.permission = "give_exclusive_permission";
+      trx.operations.push_back(op);
+      trx.validate();
+      db.push_transaction(trx, ~0);
+   } else {
+      auto grantor_permission = *grantor_permission_itr;
+      grantor_id = grantor_permission.account;
    }
+
+   trx.operations.clear();
+
+   std::for_each(permissions.begin(), permissions.end(),
+      [&](const string &op_name) {
+         give_exclusive_permission_operation op;
+         op.from = grantor_id;
+         op.to = account.id;
+         op.permission = op_name;
+         trx.operations.push_back(op);
+   });
+
+   trx.validate();
+   db.push_transaction(trx, ~0);
+   trx.operations.clear();
 }
 
 account_create_operation database_fixture::make_account(
@@ -529,7 +561,6 @@ const asset_object& database_fixture::create_user_issued_asset( const string& na
    creator.issuer = issuer.id;
    creator.fee = asset();
    creator.symbol = name;
-   creator.common_options.max_supply = 0;
    creator.precision = 2;
    creator.common_options.core_exchange_rate = price({asset(1,asset_id_type(1)),asset(1)});
    creator.common_options.max_supply = GRAPHENE_MAX_SHARE_SUPPLY;
@@ -593,8 +624,7 @@ void database_fixture::change_fees(
 
 const account_object& database_fixture::create_account(
    const string& name,
-   const public_key_type& key /* = public_key_type() */,
-   bool with_all_permissions
+   const public_key_type& key /* = public_key_type() */
    )
 {
    trx.operations.push_back(make_account(name, key));
@@ -602,7 +632,6 @@ const account_object& database_fixture::create_account(
    processed_transaction ptx = db.push_transaction(trx, ~0);
    auto& result = db.get<account_object>(ptx.operation_results[0].get<object_id_type>());
    trx.operations.clear();
-   if (with_all_permissions) grant_permissions_for_account(result);
    return result;
 }
 
@@ -611,8 +640,7 @@ const account_object& database_fixture::create_account(
    const account_object& registrar,
    const account_object& referrer,
    uint8_t referrer_percent /* = 100 */,
-   const public_key_type& key /*= public_key_type()*/,
-   bool with_all_permissions
+   const public_key_type& key /*= public_key_type()*/
    )
 {
    try
@@ -623,7 +651,6 @@ const account_object& database_fixture::create_account(
       auto r = db.push_transaction(trx, ~0);
       const auto& result = db.get<account_object>(r.operation_results[0].get<object_id_type>());
       trx.operations.clear();
-      if (with_all_permissions) grant_permissions_for_account(result);
       return result;
    }
    FC_CAPTURE_AND_RETHROW( (name)(registrar)(referrer) )
@@ -634,8 +661,7 @@ const account_object& database_fixture::create_account(
    const private_key_type& key,
    const account_id_type& registrar_id /* = account_id_type() */,
    const account_id_type& referrer_id /* = account_id_type() */,
-   uint8_t referrer_percent /* = 100 */,
-   bool with_all_permissions
+   uint8_t referrer_percent /* = 100 */
    )
 {
    try
@@ -658,7 +684,6 @@ const account_object& database_fixture::create_account(
       //wdump( (ptx) );
       const account_object& result = db.get<account_object>(ptx.operation_results[0].get<object_id_type>());
       trx.operations.clear();
-      if (with_all_permissions) grant_permissions_for_account(result);
       return result;
    }
    FC_CAPTURE_AND_RETHROW( (name)(registrar_id)(referrer_id) )

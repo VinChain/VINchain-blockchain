@@ -1730,6 +1730,7 @@ BOOST_AUTO_TEST_CASE(zero_second_vbo)
    {
       ACTOR(alice);
       // don't pay witnesses so we have some worker budget to work with
+      grant_permissions_for_account(alice_id(db), {"asset_reserve"});
 
       transfer(account_id_type(), alice_id, asset(int64_t(100000) * 1100 * 1000 * 1000));
       {
@@ -1847,8 +1848,9 @@ BOOST_AUTO_TEST_CASE( vbo_withdraw_different )
    try
    {
       ACTORS((alice)(izzy));
+      grant_permissions_for_account(izzy_id(db), {"asset_create", "asset_issue"});
       // don't pay witnesses so we have some worker budget to work with
-
+      generate_block();
       // transfer(account_id_type(), alice_id, asset(1000));
 
       asset_id_type stuff_id = create_user_issued_asset( "STUFF", izzy_id(db), 0 ).id;
@@ -1920,6 +1922,7 @@ BOOST_AUTO_TEST_CASE( vbo_withdraw_different )
 BOOST_AUTO_TEST_CASE( top_n_special )
 {
    ACTORS( (alice)(bob)(chloe)(dan)(izzy)(stan) );
+   grant_permissions_for_account(izzy_id(db), {"asset_create", "asset_issue"});
 
    generate_blocks( HARDFORK_516_TIME );
    generate_blocks( HARDFORK_599_TIME );
@@ -1932,7 +1935,7 @@ BOOST_AUTO_TEST_CASE( top_n_special )
          // Stan (special authority)
          // Alice, Bob, Chloe, Dan (ABCD)
          //
-
+         // generate_block();
          asset_id_type topn_id = create_user_issued_asset( "TOPN", izzy_id(db), 0 ).id;
          authority stan_owner_auth = stan_id(db).owner;
          authority stan_active_auth = stan_id(db).active;

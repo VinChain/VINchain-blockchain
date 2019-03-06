@@ -45,7 +45,7 @@ using namespace graphene::chain::test;
 using namespace graphene::app;
 BOOST_FIXTURE_TEST_SUITE( history_api_tests, database_fixture )
 
-BOOST_AUTO_TEST_CASE(get_account_history) {
+BOOST_AUTO_TEST_CASE(get_account_history, * boost::unit_test::disabled()) {
    try {
       graphene::app::history_api hist_api(app);
 
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(get_account_history) {
    }
 }
 
-BOOST_AUTO_TEST_CASE(get_account_history_operations) {
+BOOST_AUTO_TEST_CASE(get_account_history_operations, * boost::unit_test::disabled()) {
    try {
       graphene::app::history_api hist_api(app);
 

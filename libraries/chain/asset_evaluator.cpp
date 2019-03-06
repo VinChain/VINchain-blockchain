@@ -29,6 +29,7 @@
 #include <graphene/chain/exceptions.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/is_authorized_asset.hpp>
+#include <graphene/chain/permissions_validator.hpp>
 
 #include <functional>
 
@@ -39,6 +40,10 @@ namespace graphene {
 
                 database &d = db();
 
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, op.issuer, "asset_create"), 
+                    "Could not create an asset due to lack of permissions.");
+                
                 const auto &chain_parameters = d.get_global_properties().parameters;
                 FC_ASSERT(op.common_options.whitelist_authorities.size() <=
                           chain_parameters.maximum_asset_whitelist_authorities);
@@ -142,6 +147,10 @@ namespace graphene {
             try {
                 const database &d = db();
 
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_issue"), 
+                    "Could not issue the asset due to lack of permissions.");
+
                 const asset_object &a = o.asset_to_issue.asset_id(d);
                 FC_ASSERT(o.issuer == a.issuer);
                 FC_ASSERT(!a.is_market_issued(), "Cannot manually issue a market-issued asset.");
@@ -173,6 +182,10 @@ namespace graphene {
         void_result asset_reserve_evaluator::do_evaluate(const asset_reserve_operation &o) {
             try {
                 const database &d = db();
+
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.payer, "asset_reserve"), 
+                    "Could not reserve the asset due to lack of permissions.");
 
                 const asset_object &a = o.amount_to_reserve.asset_id(d);
                 GRAPHENE_ASSERT(
@@ -210,6 +223,10 @@ namespace graphene {
             try {
                 database &d = db();
 
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.from_account, "asset_fund_fee_pool"), 
+                    "Could not fund the asset fee pool due to lack of permissions.");
+
                 const asset_object &a = o.asset_id(d);
 
                 asset_dyn_data = &a.dynamic_asset_data_id(d);
@@ -235,6 +252,10 @@ namespace graphene {
         void_result asset_update_evaluator::do_evaluate(const asset_update_operation &o) {
             try {
                 database &d = db();
+
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_update"), 
+                    "Could not update the asset due to lack of permissions.");
 
                 const asset_object &a = o.asset_to_update(d);
                 auto a_copy = a;
@@ -588,6 +609,12 @@ namespace graphene {
 
         void_result asset_claim_fees_evaluator::do_evaluate(const asset_claim_fees_operation &o) {
             try {
+
+                database &d = db();
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_claim_fees"), 
+                    "Could not claim fees from the asset pool due to lack of permissions.");
+
                 FC_ASSERT(o.amount_to_claim.asset_id(db()).issuer == o.issuer,
                           "Asset fees may only be claimed by the issuer");
                 return void_result();

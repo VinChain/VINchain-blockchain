@@ -92,7 +92,7 @@ namespace graphene {
         custom_operation,
         assert_operation,
         balance_claim_operation,
-        override_transfer_operation, // not permitted
+        override_transfer_operation,
         transfer_to_blind_operation, // not permitted
         blind_transfer_operation, // not permitted
         transfer_from_blind_operation, // not permitted
