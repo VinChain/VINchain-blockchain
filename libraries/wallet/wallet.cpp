@@ -3246,6 +3246,13 @@ namespace graphene {
             return *a;
         }
 
+        asset_dynamic_data_object wallet_api::get_asset_dynamic_data(string asset_name_or_id) const {
+            auto a = my->find_asset(asset_name_or_id);
+            FC_ASSERT(a);
+            return my->get_object<asset_dynamic_data_object>(a->
+            dynamic_asset_data_id);
+        }
+
         asset_bitasset_data_object wallet_api::get_bitasset_data(string asset_name_or_id) const {
             auto asset = get_asset(asset_name_or_id);
             FC_ASSERT(asset.is_market_issued() && asset.bitasset_data_id);

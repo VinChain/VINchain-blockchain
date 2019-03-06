@@ -455,6 +455,12 @@ namespace graphene {
              */
             asset_object get_asset(string asset_name_or_id) const;
 
+            /** Returns dynamic information about the given asset.
+             * @param asset_name_or_id the symbol or id of the asset in question
+             * @returns the information about the asset stored in the block chain
+             */
+            asset_dynamic_data_object get_asset_dynamic_data(string asset_name_or_id) const;
+
             /** Returns the BitAsset-specific data for a given asset.
              * Market-issued assets's behavior are determined both by their "BitAsset Data" and
              * their basic asset data, as returned by \c get_asset().
@@ -1726,6 +1732,7 @@ FC_API( graphene::wallet::wallet_api,
         (publish_asset_feed)
         (issue_asset)
         (get_asset)
+        (get_asset_dynamic_data)
         (get_bitasset_data)
         (fund_asset_fee_pool)
         (reserve_asset)
