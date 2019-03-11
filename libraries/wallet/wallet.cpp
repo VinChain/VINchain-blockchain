@@ -1163,6 +1163,7 @@ namespace graphene {
                                                 uint8_t precision,
                                                 asset_options common,
                                                 fc::optional <bitasset_options> bitasset_opts,
+                                                asset_create_operation::extensions_type extensions,
                                                 bool broadcast = false) {
                     try {
                         account_object issuer_account = get_account(issuer);
@@ -1174,6 +1175,7 @@ namespace graphene {
                         create_op.precision = precision;
                         create_op.common_options = common;
                         create_op.bitasset_opts = bitasset_opts;
+                        create_op.extensions = extensions;
 
                         signed_transaction tx;
                         tx.operations.push_back(create_op);
@@ -2697,7 +2699,7 @@ namespace graphene {
                     opts.flags &= ~(white_list | disable_force_settle | global_settle);
                     opts.issuer_permissions = opts.flags;
                     opts.core_exchange_rate = price(asset(1), asset(1, asset_id_type(1)));
-                    create_asset(get_account(creator).name, symbol, 2, opts, {}, true);
+                    create_asset(get_account(creator).name, symbol, 2, opts, {}, {}, true);
                 }
 
                 void dbg_make_mia(string creator, string symbol) {
@@ -2706,7 +2708,7 @@ namespace graphene {
                     opts.issuer_permissions = opts.flags;
                     opts.core_exchange_rate = price(asset(1), asset(1, asset_id_type(1)));
                     bitasset_options bopts;
-                    create_asset(get_account(creator).name, symbol, 2, opts, bopts, true);
+                    create_asset(get_account(creator).name, symbol, 2, opts, bopts, {}, true);
                 }
 
                 void dbg_push_blocks(const std::string &src_filename, uint32_t count) {
@@ -3534,8 +3536,9 @@ namespace graphene {
                                                     uint8_t precision,
                                                     asset_options common,
                                                     fc::optional <bitasset_options> bitasset_opts,
+                                                    asset_create_operation::extensions_type extensions,
                                                     bool broadcast) {
-            return my->create_asset(issuer, symbol, precision, common, bitasset_opts, broadcast);
+            return my->create_asset(issuer, symbol, precision, common, bitasset_opts, extensions, broadcast);
         }
 
         signed_transaction wallet_api::update_asset(string symbol,
