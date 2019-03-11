@@ -1080,7 +1080,6 @@ namespace graphene {
                                             uint8_t precision,
                                             asset_options common,
                                             fc::optional<bitasset_options> bitasset_opts,
-                                            asset_create_operation::extensions_type extensions,
                                             bool broadcast = false);
 
             /** Issue new shares of an asset.

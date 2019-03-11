@@ -78,6 +78,13 @@ namespace graphene {
              * size of description.
              */
             string description;
+
+            struct extended_asset_options
+            {
+                optional<price> payment_core_exchange_rate;
+            };
+            
+            typedef extension<extended_asset_options> extensions_type;
             extensions_type extensions;
 
             /// Perform internal consistency checks.
@@ -121,11 +128,6 @@ namespace graphene {
          */
         struct asset_create_operation : public base_operation {
             
-            struct extended_options_type
-            {
-                optional<price> payment_core_exchange_rate;
-            };
-
             struct fee_parameters_type {
                 uint64_t symbol3 = 500000 * GRAPHENE_BLOCKCHAIN_PRECISION;
                 uint64_t symbol4 = 300000 * GRAPHENE_BLOCKCHAIN_PRECISION;
@@ -153,7 +155,6 @@ namespace graphene {
             /// For BitAssets, set this to true if the asset implements a @ref prediction_market; false otherwise
             bool is_prediction_market = false;
 
-            typedef extension<extended_options_type> extensions_type;
             extensions_type extensions;
 
             account_id_type fee_payer() const { return issuer; }
@@ -474,6 +475,7 @@ namespace graphene {
 
 FC_REFLECT( graphene::chain::asset_claim_fees_operation, (fee)(issuer)(amount_to_claim)(extensions) )
 FC_REFLECT( graphene::chain::asset_claim_fees_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::asset_options::extended_asset_options, (payment_core_exchange_rate))
 FC_REFLECT( graphene::chain::asset_options,
         (max_supply)
         (market_fee_percent)
@@ -547,4 +549,3 @@ FC_REFLECT( graphene::chain::asset_global_settle_operation, (fee)(issuer)(asset_
 FC_REFLECT( graphene::chain::asset_issue_operation, (fee)(issuer)(asset_to_issue)(issue_to_account)(memo)(extensions) )
 FC_REFLECT( graphene::chain::asset_reserve_operation, (fee)(payer)(amount_to_reserve)(extensions) )
 FC_REFLECT( graphene::chain::asset_fund_fee_pool_operation, (fee)(from_account)(asset_id)(amount)(extensions) );
-FC_REFLECT( graphene::chain::asset_create_operation::extended_options_type, (payment_core_exchange_rate) )

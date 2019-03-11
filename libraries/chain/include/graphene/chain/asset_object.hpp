@@ -149,8 +149,6 @@ namespace graphene {
 
             optional <account_id_type> buyback_account;
 
-            optional<price> payment_core_exchange_rate;
-
             asset_id_type get_id() const { return id; }
 
             void validate() const {
@@ -306,5 +304,4 @@ FC_REFLECT_DERIVED( graphene::chain::asset_object,
         (dynamic_asset_data_id)
         (bitasset_data_id)
         (buyback_account)
-        (payment_core_exchange_rate)
 )
