@@ -137,7 +137,10 @@ namespace graphene {
                                 a.bitasset_data_id = bit_asset_id;
 
                             if (a.options.extensions.value.payment_core_exchange_rate.valid()) {
-                                a.options.extensions.value.payment_core_exchange_rate->quote.asset_id = next_asset_id;
+                                if (a.options.extensions.value.payment_core_exchange_rate->base.asset_id.instance.value == 0)
+                                    a.options.extensions.value.payment_core_exchange_rate->quote.asset_id = next_asset_id;
+                                else
+                                    a.options.extensions.value.payment_core_exchange_rate->base.asset_id = next_asset_id;
                             }
                         });
                 assert(new_asset.id == next_asset_id);

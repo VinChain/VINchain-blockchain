@@ -107,9 +107,17 @@ namespace graphene {
 
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(is_valid_symbol(symbol));
+
             common_options.validate();
-            asset dummy = asset(1) * common_options.core_exchange_rate;
-            FC_ASSERT(dummy.asset_id == asset_id_type(1));
+            asset fee_asset = asset(1) * common_options.core_exchange_rate;
+            FC_ASSERT(fee_asset.asset_id == asset_id_type(1));
+
+            if (common_options.extensions.value.payment_core_exchange_rate.valid()) {
+                common_options.extensions.value.payment_core_exchange_rate->validate();
+                asset payment_asset = asset(1) * (*common_options.extensions.value.payment_core_exchange_rate);
+                FC_ASSERT(payment_asset.asset_id == asset_id_type(1));
+            }
+            
             FC_ASSERT(precision <= 12);
         }
 
@@ -128,10 +136,16 @@ namespace graphene {
             FC_ASSERT(fee.amount >= 0);
             if (new_issuer)
                 FC_ASSERT(issuer != *new_issuer);
-            new_options.validate();
 
-            asset dummy = asset(1, asset_to_update) * new_options.core_exchange_rate;
-            FC_ASSERT(dummy.asset_id == asset_id_type());
+            new_options.validate();
+            asset fee_asset = asset(1, asset_to_update) * new_options.core_exchange_rate;
+            FC_ASSERT(fee_asset.asset_id == asset_id_type());
+
+            if (new_options.extensions.value.payment_core_exchange_rate.valid()) {
+                new_options.extensions.value.payment_core_exchange_rate->validate();
+                asset payment_asset = asset(1, asset_to_update) * (*new_options.extensions.value.payment_core_exchange_rate);
+                FC_ASSERT(payment_asset.asset_id == asset_id_type());
+            }
         }
 
         share_type asset_update_operation::calculate_fee(const asset_update_operation::fee_parameters_type &k) const {
@@ -221,6 +235,12 @@ namespace graphene {
             FC_ASSERT(core_exchange_rate.base.asset_id.instance.value == 0 ||
                       core_exchange_rate.quote.asset_id.instance.value == 0);
 
+            if (extensions.value.payment_core_exchange_rate.valid()) {
+                extensions.value.payment_core_exchange_rate->validate();
+                FC_ASSERT(extensions.value.payment_core_exchange_rate->base.asset_id.instance.value == 0 ||
+                          extensions.value.payment_core_exchange_rate->quote.asset_id.instance.value == 0);
+            }
+            
             if (!whitelist_authorities.empty() || !blacklist_authorities.empty())
                 FC_ASSERT(flags & white_list);
             for (auto item : whitelist_markets) {
