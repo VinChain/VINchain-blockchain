@@ -124,8 +124,9 @@ namespace graphene {
                     if (itr != _callbacks.end()) {
                         auto block_num = b.block_num();
                         auto &callback = _callbacks.find(id)->second;
-                        fc::async([capture_this, this, id, block_num, trx_num, trx, callback]() {
-                            callback(fc::variant(transaction_confirmation{id, block_num, trx_num, trx}));
+                        auto v = fc::variant(transaction_confirmation{ id, block_num, trx_num, trx });
+                        fc::async( [capture_this,v,callback]() {
+                            callback(v);
                         });
                     }
                 }
