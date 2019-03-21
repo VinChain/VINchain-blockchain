@@ -118,7 +118,7 @@ namespace graphene {
                 FC_ASSERT(payment_asset.asset_id == asset_id_type(1));
             }
             
-            FC_ASSERT(precision <= 12);
+            FC_ASSERT(precision <= GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS);
         }
 
         void asset_update_operation::validate() const {
