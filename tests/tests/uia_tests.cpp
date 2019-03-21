@@ -53,11 +53,11 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
       creator.fee = asset();
       creator.symbol = "ADVANCED";
       creator.common_options.max_supply = 100000000;
-      creator.precision = 2;
+      creator.precision = GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS;
       creator.common_options.market_fee_percent = 0; /*1%*/
       creator.common_options.issuer_permissions = white_list|override_authority|transfer_restricted;
       creator.common_options.flags = white_list|override_authority;
-      creator.common_options.core_exchange_rate = price({asset(2),asset(1,asset_id_type(1))});
+      creator.common_options.core_exchange_rate = price({asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION), asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type(1))});
       creator.common_options.whitelist_authorities = creator.common_options.blacklist_authorities = {account_id_type()};
       creator.common_options.extensions.value.payment_core_exchange_rate = price({asset(2),asset(1,asset_id_type(1))});
 
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
 
       const asset_object& test_asset = test_asset_id(db);
       BOOST_CHECK(test_asset.symbol == "ADVANCED");
-      BOOST_CHECK(asset(1, test_asset_id) * test_asset.options.core_exchange_rate == asset(2));
+      BOOST_CHECK(asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, test_asset_id) * test_asset.options.core_exchange_rate == asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION));
       BOOST_CHECK(test_asset.options.flags & white_list);
       BOOST_CHECK(test_asset.options.max_supply == 100000000);
       BOOST_CHECK(!test_asset.bitasset_data_id.valid());

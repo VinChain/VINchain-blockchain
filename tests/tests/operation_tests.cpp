@@ -597,17 +597,17 @@ BOOST_AUTO_TEST_CASE( create_uia )
       creator.fee = asset();
       creator.symbol = UIA_TEST_SYMBOL;
       creator.common_options.max_supply = 100000000;
-      creator.precision = 2;
+      creator.precision = GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS;
       creator.common_options.market_fee_percent = 0; /*1%*/
       creator.common_options.issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;
       creator.common_options.flags = transfer_restricted;
-      creator.common_options.core_exchange_rate = price({asset(2),asset(1,asset_id_type(1))});
+      creator.common_options.core_exchange_rate = price({asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION),asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type(1))});
       trx.operations.push_back(std::move(creator));
       PUSH_TX( db, trx, ~0 );
 
       const asset_object& test_asset = test_asset_id(db);
       BOOST_CHECK(test_asset.symbol == UIA_TEST_SYMBOL);
-      BOOST_CHECK(asset(1, test_asset_id) * test_asset.options.core_exchange_rate == asset(2));
+      BOOST_CHECK(asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, test_asset_id) * test_asset.options.core_exchange_rate == asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
       BOOST_CHECK((test_asset.options.issuer_permissions & charge_market_fee) == charge_market_fee);
       BOOST_CHECK((test_asset.options.issuer_permissions & white_list) == white_list);
@@ -661,10 +661,10 @@ BOOST_AUTO_TEST_CASE( not_create_uia_with_disabled_flags )
       creator.fee = asset();
       creator.symbol = UIA_TEST_SYMBOL;
       creator.common_options.max_supply = 100000000;
-      creator.precision = 2;
+      creator.precision = GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS;
       creator.common_options.issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;
       creator.common_options.flags = charge_market_fee;
-      creator.common_options.core_exchange_rate = price({asset(2),asset(1,asset_id_type(1))});
+      creator.common_options.core_exchange_rate = price({asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION),asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type(1))});
       trx.operations.push_back(std::move(creator));
       GRAPHENE_REQUIRE_THROW(PUSH_TX( db, trx, ~0 ), fc::exception);
       
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE( not_create_uia_with_disabled_flags )
 
       const asset_object& test_asset = test_asset_id(db);
       BOOST_CHECK(test_asset.symbol == UIA_TEST_SYMBOL);
-      BOOST_CHECK(asset(1, test_asset_id) * test_asset.options.core_exchange_rate == asset(2));
+      BOOST_CHECK(asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, test_asset_id) * test_asset.options.core_exchange_rate == asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
       BOOST_CHECK((test_asset.options.issuer_permissions & white_list) == white_list);
       BOOST_CHECK((test_asset.options.issuer_permissions & override_authority) == override_authority);
@@ -733,7 +733,7 @@ BOOST_AUTO_TEST_CASE( update_uia )
       REQUIRE_THROW_WITH_VALUE(op, new_options.core_exchange_rate, price(asset(5), asset(5)));
 
       BOOST_TEST_MESSAGE( "Test updating core_exchange_rate" );
-      op.new_options.core_exchange_rate = price(asset(3), test.amount(5));
+      op.new_options.core_exchange_rate = price(asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION), test.amount(1 * GRAPHENE_BLOCKCHAIN_PRECISION));
       trx.operations.back() = op;
       PUSH_TX( db, trx, ~0 );
       REQUIRE_THROW_WITH_VALUE(op, new_options.core_exchange_rate, price());

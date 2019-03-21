@@ -111,6 +111,8 @@ namespace graphene {
             common_options.validate();
             asset fee_asset = asset(1) * common_options.core_exchange_rate;
             FC_ASSERT(fee_asset.asset_id == asset_id_type(1));
+            FC_ASSERT(common_options.core_exchange_rate.base.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
+            FC_ASSERT(common_options.core_exchange_rate.quote.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
 
             if (common_options.extensions.value.payment_core_exchange_rate.valid()) {
                 common_options.extensions.value.payment_core_exchange_rate->validate();
@@ -140,6 +142,8 @@ namespace graphene {
             new_options.validate();
             asset fee_asset = asset(1, asset_to_update) * new_options.core_exchange_rate;
             FC_ASSERT(fee_asset.asset_id == asset_id_type());
+            FC_ASSERT(new_options.core_exchange_rate.base.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
+            FC_ASSERT(new_options.core_exchange_rate.quote.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
 
             if (new_options.extensions.value.payment_core_exchange_rate.valid()) {
                 new_options.extensions.value.payment_core_exchange_rate->validate();

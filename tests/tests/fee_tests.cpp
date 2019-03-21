@@ -1004,7 +1004,8 @@ BOOST_AUTO_TEST_CASE( create_uia_with_rounding )
          asset_create_operation op;
          op.issuer = alice_id;
          op.symbol = "ALICE";
-         op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
+         op.precision = GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS;
+         op.common_options.core_exchange_rate = asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION ) / asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type( 1 ) );
          op.fee = asset( (fees_to_pay.long_symbol + fees_to_pay.price_per_kbyte) & (~1) );
          tx.operations.push_back( op );
          set_expiration( db, tx );
@@ -1019,7 +1020,7 @@ BOOST_AUTO_TEST_CASE( create_uia_with_rounding )
          asset_create_operation op;
          op.issuer = alice_id;
          op.symbol = "ALICE.ODD";
-         op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
+         op.common_options.core_exchange_rate = asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION ) / asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type( 1 ) );
          op.fee = asset((fees_to_pay.long_symbol + fees_to_pay.price_per_kbyte) | 1);
          tx.operations.push_back( op );
          set_expiration( db, tx );
@@ -1033,7 +1034,7 @@ BOOST_AUTO_TEST_CASE( create_uia_with_rounding )
          asset_create_operation op;
          op.issuer = alice_id;
          op.symbol = "ALICE.ODDER";
-         op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
+         op.common_options.core_exchange_rate = asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION ) / asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type( 1 ) );
          op.fee = asset((fees_to_pay.long_symbol + fees_to_pay.price_per_kbyte) | 1);
          tx.operations.push_back( op );
          set_expiration( db, tx );
@@ -1075,7 +1076,8 @@ BOOST_AUTO_TEST_CASE( issue_433_test )
       asset_create_operation op;
       op.issuer = alice_id;
       op.symbol = "ALICE";
-      op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
+      op.precision = GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS;
+      op.common_options.core_exchange_rate = asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION ) / asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type( 1 ) );
       op.fee = myusd.amount( ((asset_create_fees.long_symbol + asset_create_fees.price_per_kbyte) & (~1)) );
       signed_transaction tx;
       tx.operations.push_back( op );
