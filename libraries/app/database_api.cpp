@@ -218,6 +218,8 @@ namespace graphene {
             optional <invoice_object> get_invoice_by_report_uuid(const string &report_uuid) const;
             vector <account_object> list_data_sources_from_invoices() const;
             vector <invoice_object> list_invoices_by_data_source(const string &account_name) const;
+            vector <exclusive_permission_object> list_account_permissions(const string &name_or_id) const;
+            vector <exclusive_permission_object> list_all_permissions() const;
 
             //private:
             static string price_to_string(const price &_price, const asset_object &_base, const asset_object &_quote);
@@ -2094,6 +2096,46 @@ namespace graphene {
 
             return results;
         };
+
+        vector <exclusive_permission_object> database_api::list_account_permissions(const string &name_or_id) const {
+            return my->list_account_permissions(name_or_id);
+        }
+
+        vector <exclusive_permission_object> database_api_impl::list_account_permissions(const string &name_or_id) const {
+            FC_ASSERT(name_or_id.size() > 0);
+            const account_object *account = nullptr;
+            if (std::isdigit(name_or_id[0]))
+                account = _db.find(fc::variant(name_or_id).as<account_id_type>());
+            else {
+                const auto &idx = _db.get_index_type<account_index>().indices().get<by_name>();
+                auto itr = idx.find(name_or_id);
+                if (itr != idx.end())
+                    account = &*itr;
+            }
+            FC_ASSERT(account, "no such account");
+
+            const auto &permissions_by_account_idx = _db.get_index_type<exclusive_permission_index>().indices().get<by_account>();
+            vector<exclusive_permission_object> result;
+            for (const auto &p : permissions_by_account_idx) {
+                if (p.account == account->id)
+                    result.push_back(p);
+            }
+
+            return result;
+        }
+
+        vector <exclusive_permission_object> database_api::list_all_permissions() const {
+            return my->list_all_permissions();
+        }
+
+        vector <exclusive_permission_object> database_api_impl::list_all_permissions() const {
+            vector <exclusive_permission_object> result;
+            const auto &permissions_by_account_idx = _db.get_index_type<exclusive_permission_index>().indices().get<by_id>();
+            for (const auto &p : permissions_by_account_idx) {
+                result.push_back(p);
+            }
+            return result;
+        }
 
         //////////////////////////////////////////////////////////////////////
         //                                                                  //

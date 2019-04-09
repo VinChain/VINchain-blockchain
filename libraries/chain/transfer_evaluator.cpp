@@ -26,6 +26,7 @@
 #include <graphene/chain/exceptions.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/is_authorized_asset.hpp>
+#include <graphene/chain/permissions_validator.hpp>
 
 namespace graphene {
     namespace chain {
@@ -96,6 +97,10 @@ namespace graphene {
             try {
                 const database &d = db();
 
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, op.issuer, "asset_create"), 
+                    "Could not override transfer due to lack of permissions.");
+
                 const asset_object &asset_type = op.amount.asset_id(d);
                 GRAPHENE_ASSERT(
                         asset_type.can_override(),
@@ -110,11 +115,6 @@ namespace graphene {
 
                 FC_ASSERT(is_authorized_asset(d, to_account, asset_type));
                 FC_ASSERT(is_authorized_asset(d, from_account, asset_type));
-
-                if (d.head_block_time() <= HARDFORK_419_TIME) {
-                    FC_ASSERT(is_authorized_asset(d, from_account, asset_type));
-                }
-                // the above becomes no-op after hardfork because this check will then be performed in evaluator
 
                 FC_ASSERT(d.get_balance(from_account, asset_type).amount >= op.amount.amount,
                           "", ("total_transfer", op.amount)("balance", d.get_balance(from_account, asset_type).amount));

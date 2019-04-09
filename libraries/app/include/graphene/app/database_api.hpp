@@ -42,6 +42,7 @@
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/vindb_block_object.hpp>
 #include <graphene/chain/invoice_object.hpp>
+#include <graphene/chain/exclusive_permission_object.hpp>
 
 #include <graphene/market_history/market_history_plugin.hpp>
 
@@ -648,6 +649,10 @@ namespace graphene {
 
             vector <invoice_object> list_invoices_by_data_source(const string &account_name) const;
 
+            vector <exclusive_permission_object> list_account_permissions(const string &name_or_id) const;
+
+            vector <exclusive_permission_object> list_all_permissions() const;
+
         private:
             std::shared_ptr <database_api_impl> my;
         };
@@ -768,4 +773,6 @@ FC_API( graphene::app::database_api,
         (get_invoice_by_report_uuid)
         (list_data_sources_from_invoices)
         (list_invoices_by_data_source)
+        (list_account_permissions)
+        (list_all_permissions)
 )

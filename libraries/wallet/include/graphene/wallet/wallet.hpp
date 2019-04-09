@@ -455,6 +455,12 @@ namespace graphene {
              */
             asset_object get_asset(string asset_name_or_id) const;
 
+            /** Returns dynamic information about the given asset.
+             * @param asset_name_or_id the symbol or id of the asset in question
+             * @returns the information about the asset stored in the block chain
+             */
+            asset_dynamic_data_object get_asset_dynamic_data(string asset_name_or_id) const;
+
             /** Returns the BitAsset-specific data for a given asset.
              * Market-issued assets's behavior are determined both by their "BitAsset Data" and
              * their basic asset data, as returned by \c get_asset().
@@ -823,6 +829,26 @@ namespace graphene {
                                         string memo,
                                         bool broadcast = false);
 
+            /** Transfer user-issued asset amount from one account to another.
+             * @param issuer the name or id of the account swho created the asset
+             * @param from the name or id of the account sending the funds
+             * @param to the name or id of the account receiving the funds
+             * @param amount the amount to send (in nominal units -- to send half of a VIN, specify 0.5)
+             * @param asset_symbol the symbol or id of the asset to send
+             * @param memo a memo to attach to the transaction.  The memo will be encrypted in the
+             *             transaction and readable for the receiver.  There is no length limit
+             *             other than the limit imposed by maximum transaction size, but transaction
+             *             increase with transaction size
+             * @param broadcast true to broadcast the transaction on the network
+             * @returns the signed transaction transferring funds
+             */
+            signed_transaction transfer_override(string issuer, 
+                                                string from, 
+                                                string to,
+                                                string amount, 
+                                                string symbol, 
+                                                string memo, 
+                                                bool broadcast = false);
 
             signed_transaction create_vindb_block(string owner,
                                                   uint64_t block_id,
@@ -1180,6 +1206,21 @@ namespace graphene {
                                              string amount,
                                              string symbol,
                                              bool broadcast = false);
+
+            /** Claims accumulated fees for the given user-issued asset.
+             *
+             * This command burns the user-issued asset to reduce the amount in circulation.
+             * @note you cannot burn market-issued assets.
+             * @param issuer the account created the asset
+             * @param amount the amount to claim, in nominal units
+             * @param symbol the name or id of the asset to claim
+             * @param broadcast true to broadcast the transaction on the network
+             * @returns the signed transaction claiming the asset
+             */
+            signed_transaction claim_asset_fees(string issuer,
+                                                                string amount,
+                                                                string symbol,
+                                                                bool broadcast = false);
 
             /** Forces a global settling of the given asset (black swan or prediction markets).
              *
@@ -1717,6 +1758,7 @@ FC_API( graphene::wallet::wallet_api,
         (borrow_asset)
         (cancel_order)
         (transfer)
+        (transfer_override)
         (transfer2)
         (get_transaction_id)
         (create_asset)
@@ -1726,9 +1768,11 @@ FC_API( graphene::wallet::wallet_api,
         (publish_asset_feed)
         (issue_asset)
         (get_asset)
+        (get_asset_dynamic_data)
         (get_bitasset_data)
         (fund_asset_fee_pool)
         (reserve_asset)
+        (claim_asset_fees)
         (global_settle_asset)
         (settle_asset)
         (bid_collateral)

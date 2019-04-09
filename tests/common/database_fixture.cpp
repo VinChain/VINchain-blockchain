@@ -36,6 +36,7 @@
 #include <graphene/chain/market_object.hpp>
 #include <graphene/chain/vesting_balance_object.hpp>
 #include <graphene/chain/witness_object.hpp>
+#include <graphene/chain/exclusive_permission_object.hpp>
 
 #include <graphene/utilities/tempdir.hpp>
 
@@ -373,6 +374,49 @@ account_create_operation database_fixture::make_account(
    return create_account;
 } FC_CAPTURE_AND_RETHROW() }
 
+
+void database_fixture::grant_permissions_for_account(const account_object& account, const vector<string>& permissions) {
+   
+   const auto &idx = db.get_index_type<exclusive_permission_index>();
+   const auto &by_id_idx = idx.indices().get<by_id>();
+
+   auto grantor_id = account_id_type();
+   auto grantor_permission_itr = std::find_if(by_id_idx.begin(), by_id_idx.end(),
+      [&](const exclusive_permission_object &record) {
+         return record.permission == "give_exclusive_permission";
+      });
+
+   if (grantor_permission_itr == by_id_idx.end()) { 
+      // make committee-account admin by default
+      trx.operations.clear();
+      give_exclusive_permission_operation op;
+      op.from = account_id_type();
+      op.to = account_id_type();
+      op.permission = "give_exclusive_permission";
+      trx.operations.push_back(op);
+      trx.validate();
+      db.push_transaction(trx, ~0);
+   } else {
+      auto grantor_permission = *grantor_permission_itr;
+      grantor_id = grantor_permission.account;
+   }
+
+   trx.operations.clear();
+
+   std::for_each(permissions.begin(), permissions.end(),
+      [&](const string &op_name) {
+         give_exclusive_permission_operation op;
+         op.from = grantor_id;
+         op.to = account.id;
+         op.permission = op_name;
+         trx.operations.push_back(op);
+   });
+
+   trx.validate();
+   db.push_transaction(trx, ~0);
+   trx.operations.clear();
+}
+
 account_create_operation database_fixture::make_account(
    const std::string& name,
    const account_object& registrar,
@@ -426,6 +470,14 @@ const account_object& database_fixture::get_account( const string& name )const
 {
    const auto& idx = db.get_index_type<account_index>().indices().get<by_name>();
    const auto itr = idx.find(name);
+   assert( itr != idx.end() );
+   return *itr;
+}
+
+const account_object& database_fixture::get_account( const account_id_type& account_id )const
+{
+   const auto& idx = db.get_index_type<account_index>().indices().get<by_id>();
+   const auto itr = idx.find(account_id);
    assert( itr != idx.end() );
    return *itr;
 }
@@ -491,12 +543,11 @@ const asset_object& database_fixture::create_user_issued_asset( const string& na
    creator.issuer = account_id_type();
    creator.fee = asset();
    creator.symbol = name;
-   creator.common_options.max_supply = 0;
    creator.precision = 2;
-   creator.common_options.core_exchange_rate = price({asset(1,asset_id_type(1)),asset(1)});
+   creator.common_options.core_exchange_rate = price({asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type(1)),asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION)});
    creator.common_options.max_supply = GRAPHENE_MAX_SHARE_SUPPLY;
-   creator.common_options.flags = charge_market_fee;
-   creator.common_options.issuer_permissions = charge_market_fee;
+   creator.common_options.flags = 0;
+   creator.common_options.issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;
    trx.operations.push_back(std::move(creator));
    trx.validate();
    processed_transaction ptx = db.push_transaction(trx, ~0);
@@ -510,9 +561,8 @@ const asset_object& database_fixture::create_user_issued_asset( const string& na
    creator.issuer = issuer.id;
    creator.fee = asset();
    creator.symbol = name;
-   creator.common_options.max_supply = 0;
    creator.precision = 2;
-   creator.common_options.core_exchange_rate = price({asset(1,asset_id_type(1)),asset(1)});
+   creator.common_options.core_exchange_rate = price({asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION, asset_id_type(1)),asset(1 * GRAPHENE_BLOCKCHAIN_PRECISION)});
    creator.common_options.max_supply = GRAPHENE_MAX_SHARE_SUPPLY;
    creator.common_options.flags = flags;
    creator.common_options.issuer_permissions = flags;

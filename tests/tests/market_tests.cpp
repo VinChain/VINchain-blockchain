@@ -36,7 +36,7 @@ using namespace graphene::chain;
 using namespace graphene::chain::test;
 using namespace graphene::wallet;
 
-BOOST_FIXTURE_TEST_SUITE(market_tests, database_fixture)
+BOOST_FIXTURE_TEST_SUITE(market_tests, database_fixture, * boost::unit_test::disabled() )
 
 /***
  * Reproduce bitshares-core issue #338

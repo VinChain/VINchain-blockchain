@@ -25,6 +25,7 @@
 
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/memo.hpp>
+#include <graphene/chain/protocol/ext.hpp>
 
 namespace graphene {
     namespace chain {
@@ -45,7 +46,7 @@ namespace graphene {
             /// in this field means a 1% fee is charged on market trades of this asset.
             uint16_t market_fee_percent = 0;
             /// Market fees calculated as @ref market_fee_percent of the traded volume are capped to this value
-            share_type max_market_fee = GRAPHENE_MAX_SHARE_SUPPLY;
+            share_type max_market_fee = 0;
 
             /// The flags which the issuer has permission to update. See @ref asset_issuer_permission_flags
             uint16_t issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;
@@ -77,6 +78,13 @@ namespace graphene {
              * size of description.
              */
             string description;
+
+            struct extended_asset_options
+            {
+                optional<price> payment_core_exchange_rate;
+            };
+            
+            typedef extension<extended_asset_options> extensions_type;
             extensions_type extensions;
 
             /// Perform internal consistency checks.
@@ -119,6 +127,7 @@ namespace graphene {
          * @ingroup operations
          */
         struct asset_create_operation : public base_operation {
+            
             struct fee_parameters_type {
                 uint64_t symbol3 = 500000 * GRAPHENE_BLOCKCHAIN_PRECISION;
                 uint64_t symbol4 = 300000 * GRAPHENE_BLOCKCHAIN_PRECISION;
@@ -145,6 +154,7 @@ namespace graphene {
             optional <bitasset_options> bitasset_opts;
             /// For BitAssets, set this to true if the asset implements a @ref prediction_market; false otherwise
             bool is_prediction_market = false;
+
             extensions_type extensions;
 
             account_id_type fee_payer() const { return issuer; }
@@ -465,6 +475,7 @@ namespace graphene {
 
 FC_REFLECT( graphene::chain::asset_claim_fees_operation, (fee)(issuer)(amount_to_claim)(extensions) )
 FC_REFLECT( graphene::chain::asset_claim_fees_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::asset_options::extended_asset_options, (payment_core_exchange_rate))
 FC_REFLECT( graphene::chain::asset_options,
         (max_supply)
         (market_fee_percent)

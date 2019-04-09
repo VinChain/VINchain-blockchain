@@ -139,7 +139,7 @@ BOOST_FIXTURE_TEST_SUITE( swan_tests, swan_fixture )
  *  This test sets up the minimum condition for a black swan to occur but does
  *  not test the full range of cases that may be possible during a black swan.
  */
-BOOST_AUTO_TEST_CASE( black_swan )
+BOOST_AUTO_TEST_CASE( black_swan, * boost::unit_test::disabled() )
 { try {
       init_standard_swan();
 
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( black_swan )
  * Black swan occurs when price feed falls, triggered by settlement
  * order.
  */
-BOOST_AUTO_TEST_CASE( black_swan_issue_346 )
+BOOST_AUTO_TEST_CASE( black_swan_issue_346, * boost::unit_test::disabled() )
 { try {
       ACTORS((buyer)(seller)(borrower)(borrower2)(settler)(feeder));
 
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( black_swan_issue_346 )
 
 /** Creates a black swan, recover price feed - asset should be revived
  */
-BOOST_AUTO_TEST_CASE( revive_recovered )
+BOOST_AUTO_TEST_CASE( revive_recovered, * boost::unit_test::disabled() )
 { try {
       init_standard_swan( 700 );
 
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE( revive_recovered )
 
 /** Creates a black swan, recover price feed - asset should be revived
  */
-BOOST_AUTO_TEST_CASE( recollateralize )
+BOOST_AUTO_TEST_CASE( recollateralize, * boost::unit_test::disabled() )
 { try {
       init_standard_swan( 700 );
 
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE( recollateralize )
 
 /** Creates a black swan, settles all debts, recovers price feed - asset should be revived
  */
-BOOST_AUTO_TEST_CASE( revive_empty_recovered )
+BOOST_AUTO_TEST_CASE( revive_empty_recovered, * boost::unit_test::disabled() )
 { try {
       limit_order_id_type oid = init_standard_swan( 1000 );
 
@@ -421,7 +421,7 @@ BOOST_AUTO_TEST_CASE( revive_empty_recovered )
 
 /** Creates a black swan, settles all debts - asset should be revived in next maintenance
  */
-BOOST_AUTO_TEST_CASE( revive_empty )
+BOOST_AUTO_TEST_CASE( revive_empty, * boost::unit_test::disabled() )
 { try {
       wait_for_hf_core_216();
 
@@ -445,7 +445,7 @@ BOOST_AUTO_TEST_CASE( revive_empty )
 
 /** Creates a black swan, settles all debts - asset should be revived in next maintenance
  */
-BOOST_AUTO_TEST_CASE( revive_empty_with_bid )
+BOOST_AUTO_TEST_CASE( revive_empty_with_bid, * boost::unit_test::disabled() )
 { try {
       wait_for_hf_core_216();
 

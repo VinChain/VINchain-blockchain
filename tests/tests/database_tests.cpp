@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( undo_test )
    }
 }
 
-BOOST_AUTO_TEST_CASE( flat_index_test )
+BOOST_AUTO_TEST_CASE( flat_index_test, * boost::unit_test::disabled() )
 {
    ACTORS((sam));
    const auto& bitusd = create_bitasset("USDBIT", sam.id);

@@ -219,6 +219,7 @@ struct database_fixture {
 
    const asset_object& get_asset( const string& symbol )const;
    const account_object& get_account( const string& name )const;
+   const account_object& get_account( const account_id_type& account_id )const;
    const asset_object& create_bitasset(const string& name,
                                        account_id_type issuer = GRAPHENE_WITNESS_ACCOUNT,
                                        uint16_t market_fee_percent = 100 /*1%*/,
@@ -254,6 +255,14 @@ struct database_fixture {
       const account_id_type& referrer_id = account_id_type(),
       uint8_t referrer_percent = 100
       );
+
+   void grant_permissions_for_account(const account_object& account, const vector<string>& permissions = {
+         "committee_member_create", 
+         "invoice_create", 
+         "vindb_block_create", 
+         "witness_create",
+         "asset_create"
+   });
 
    const committee_member_object& create_committee_member( const account_object& owner );
    const witness_object& create_witness(account_id_type owner,

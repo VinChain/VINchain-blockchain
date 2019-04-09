@@ -40,7 +40,7 @@
 
 using namespace graphene::chain;
 
-BOOST_FIXTURE_TEST_SUITE( confidential_tests, database_fixture )
+BOOST_FIXTURE_TEST_SUITE( confidential_tests, database_fixture, * boost::unit_test::disabled() )
 BOOST_AUTO_TEST_CASE( confidential_test )
 { try {
    ACTORS( (dan)(nathan) )

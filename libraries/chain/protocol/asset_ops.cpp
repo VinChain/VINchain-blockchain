@@ -93,32 +93,63 @@ namespace graphene {
         }
 
         void asset_create_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
+            FC_ASSERT(!bitasset_opts.valid(), "Creation of Market Pegged Assets is disabled."); 
+            // uia-specific flags do not allow charging market fees and confidential transactions at the moment           
+            FC_ASSERT(!(common_options.flags & charge_market_fee), "'charge_market_fee' flag is disabled.");
+            FC_ASSERT(!(common_options.flags & disable_confidential), "'disable_confidential' flag is disabled.");
+            FC_ASSERT(common_options.market_fee_percent == 0 && common_options.max_market_fee == 0 && !is_prediction_market, "Market fees are disbaled.");
+
+            // mia-specific permissions are disabled at the moment 
+            FC_ASSERT((!(common_options.issuer_permissions & disable_force_settle)) && (!(common_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & global_settle)) && (!(common_options.flags & global_settle)), "'global_settle' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & witness_fed_asset)) && (!(common_options.flags & witness_fed_asset)), "'witness_fed_asset' permission is disabled.");
+            FC_ASSERT((!(common_options.issuer_permissions & committee_fed_asset)) && (!(common_options.flags & committee_fed_asset)), "'committee_fed_asset' permission is disabled.");
+
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(is_valid_symbol(symbol));
-            common_options.validate();
-            if (common_options.issuer_permissions & (disable_force_settle | global_settle))
-                FC_ASSERT(bitasset_opts.valid());
-            if (is_prediction_market) {
-                FC_ASSERT(bitasset_opts.valid(), "Cannot have a User-Issued Asset implement a prediction market.");
-                FC_ASSERT(common_options.issuer_permissions & global_settle);
-            }
-            if (bitasset_opts) bitasset_opts->validate();
 
-            asset dummy = asset(1) * common_options.core_exchange_rate;
-            FC_ASSERT(dummy.asset_id == asset_id_type(1));
-            FC_ASSERT(precision <= 12);
+            common_options.validate();
+            asset fee_asset = asset(1) * common_options.core_exchange_rate;
+            FC_ASSERT(fee_asset.asset_id == asset_id_type(1));
+            FC_ASSERT(common_options.core_exchange_rate.base.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
+            FC_ASSERT(common_options.core_exchange_rate.quote.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
+
+            if (common_options.extensions.value.payment_core_exchange_rate.valid()) {
+                common_options.extensions.value.payment_core_exchange_rate->validate();
+                asset payment_asset = asset(1) * (*common_options.extensions.value.payment_core_exchange_rate);
+                FC_ASSERT(payment_asset.asset_id == asset_id_type(1));
+            }
+            
+            FC_ASSERT(precision <= GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS);
         }
 
         void asset_update_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
+            // uia-specific flags do not allow charging market fees and confidential transactions at the moment           
+            FC_ASSERT(!(new_options.flags & charge_market_fee), "'charge_market_fee' flag is disabled.");
+            FC_ASSERT(!(new_options.flags & disable_confidential), "'disable_confidential' flag is disabled.");
+            FC_ASSERT(new_options.market_fee_percent == 0 && new_options.max_market_fee == 0, "Market fees are disbaled.");
+
+            // mia-specific permissions are disabled at the moment 
+            FC_ASSERT((!(new_options.issuer_permissions & disable_force_settle)) && (!(new_options.flags & disable_force_settle)), "'disable_force_settle' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & global_settle)) && (!(new_options.flags & global_settle)), "'global_settle' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & witness_fed_asset)) && (!(new_options.flags & witness_fed_asset)), "'witness_fed_asset' permission is disabled.");
+            FC_ASSERT((!(new_options.issuer_permissions & committee_fed_asset)) && (!(new_options.flags & committee_fed_asset)), "'committee_fed_asset' permission is disabled.");
+
             FC_ASSERT(fee.amount >= 0);
             if (new_issuer)
                 FC_ASSERT(issuer != *new_issuer);
-            new_options.validate();
 
-            asset dummy = asset(1, asset_to_update) * new_options.core_exchange_rate;
-            FC_ASSERT(dummy.asset_id == asset_id_type());
+            new_options.validate();
+            asset fee_asset = asset(1, asset_to_update) * new_options.core_exchange_rate;
+            FC_ASSERT(fee_asset.asset_id == asset_id_type());
+            FC_ASSERT(new_options.core_exchange_rate.base.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
+            FC_ASSERT(new_options.core_exchange_rate.quote.amount.value == GRAPHENE_BLOCKCHAIN_PRECISION, "User-issued asset must be equivalent to the core asset");
+
+            if (new_options.extensions.value.payment_core_exchange_rate.valid()) {
+                new_options.extensions.value.payment_core_exchange_rate->validate();
+                asset payment_asset = asset(1, asset_to_update) * (*new_options.extensions.value.payment_core_exchange_rate);
+                FC_ASSERT(payment_asset.asset_id == asset_id_type());
+            }
         }
 
         share_type asset_update_operation::calculate_fee(const asset_update_operation::fee_parameters_type &k) const {
@@ -152,7 +183,6 @@ namespace graphene {
         }
 
         void asset_issue_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(asset_to_issue.amount.value <= GRAPHENE_MAX_SHARE_SUPPLY);
             FC_ASSERT(asset_to_issue.amount.value > 0);
@@ -160,7 +190,6 @@ namespace graphene {
         }
 
         void asset_fund_fee_pool_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(fee.asset_id == asset_id_type());
             FC_ASSERT(amount > 0);
@@ -210,6 +239,12 @@ namespace graphene {
             FC_ASSERT(core_exchange_rate.base.asset_id.instance.value == 0 ||
                       core_exchange_rate.quote.asset_id.instance.value == 0);
 
+            if (extensions.value.payment_core_exchange_rate.valid()) {
+                extensions.value.payment_core_exchange_rate->validate();
+                FC_ASSERT(extensions.value.payment_core_exchange_rate->base.asset_id.instance.value == 0 ||
+                          extensions.value.payment_core_exchange_rate->quote.asset_id.instance.value == 0);
+            }
+            
             if (!whitelist_authorities.empty() || !blacklist_authorities.empty())
                 FC_ASSERT(flags & white_list);
             for (auto item : whitelist_markets) {
@@ -221,7 +256,6 @@ namespace graphene {
         }
 
         void asset_claim_fees_operation::validate() const {
-            FC_ASSERT(false, "Operation not permitted right now.");
             FC_ASSERT(fee.amount >= 0);
             FC_ASSERT(amount_to_claim.amount > 0);
         }

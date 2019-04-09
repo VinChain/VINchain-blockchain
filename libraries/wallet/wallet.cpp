@@ -1340,6 +1340,70 @@ namespace graphene {
                     FC_CAPTURE_AND_RETHROW((from)(amount)(symbol)(broadcast))
                 }
 
+
+                signed_transaction claim_asset_fees(string issuer,
+                                                    string amount,
+                                                    string symbol,
+                                                    bool broadcast /* = false */) {
+                    try {
+                        account_object issuer_account = get_account(issuer);
+                        optional <asset_object> asset_to_claim = find_asset(symbol);
+                        if (!asset_to_claim)
+                            FC_THROW("No asset with that symbol exists!");
+
+                        asset_claim_fees_operation op;
+                        op.issuer = issuer_account.id;
+                        op.amount_to_claim = asset_to_claim->amount_from_string(amount);
+
+                        signed_transaction tx;
+                        tx.operations.push_back(op);
+                        set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+                        tx.validate();
+
+                        return sign_transaction(tx, broadcast);
+                    }
+                    FC_CAPTURE_AND_RETHROW((issuer)(amount)(symbol)(broadcast))
+                }
+
+                signed_transaction transfer_override(string issuer,
+                                                    string from,
+                                                    string to,
+                                                    string amount,
+                                                    string symbol,
+                                                    string memo,
+                                                    bool broadcast /* = false */) {
+
+                        FC_ASSERT(!self.is_locked());
+                        fc::optional <asset_object> asset_obj = get_asset(symbol);
+                        FC_ASSERT(asset_obj, "Could not find asset matching ${asset}", ("asset", symbol));
+
+                        account_object issuer_account = get_account(issuer);
+                        account_object from_account = get_account(from);
+                        account_object to_account = get_account(to);
+
+                        override_transfer_operation op;
+
+                        op.issuer = issuer_account.id;
+                        op.from = from_account.id;
+                        op.to = to_account.id;
+                        op.amount = asset_obj->amount_from_string(amount);
+
+                        if (memo.size()) {
+                            op.memo = memo_data();
+                            op.memo->from = from_account.options.memo_key;
+                            op.memo->to = to_account.options.memo_key;
+                            op.memo->set_message(get_private_key(from_account.options.memo_key),
+                                                      to_account.options.memo_key, memo);
+                        }
+
+                        signed_transaction tx;
+                        tx.operations.push_back(op);
+                        set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+                        tx.validate();
+
+                        return sign_transaction(tx, broadcast);
+                }
+
                 signed_transaction global_settle_asset(string symbol,
                                                        price settle_price,
                                                        bool broadcast /* = false */) {
@@ -2088,7 +2152,19 @@ namespace graphene {
 
                         signed_transaction tx;
                         tx.operations.push_back(xfer_op);
-                        set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+
+                        auto gprops = _remote_db->get_global_properties().parameters;
+                        if (asset_obj->get_id() != asset_id_type()) {
+                            auto fee = gprops.current_fees->set_fee(tx.operations.back(), asset_obj->options.core_exchange_rate);
+
+                            FC_ASSERT((fee * asset_obj->options.core_exchange_rate).amount <=
+                                    get_object<asset_dynamic_data_object>(asset_obj->dynamic_asset_data_id).fee_pool,
+                                    "Cannot pay fees in ${asset}, as this asset's fee pool is insufficiently funded.",
+                                    ("asset", asset_obj->symbol));
+                        } else {
+                            gprops.current_fees->set_fee(tx.operations.back());
+                        }
+
                         tx.validate();
 
                         return sign_transaction(tx, broadcast);
@@ -3234,6 +3310,13 @@ namespace graphene {
             return *a;
         }
 
+        asset_dynamic_data_object wallet_api::get_asset_dynamic_data(string asset_name_or_id) const {
+            auto a = my->find_asset(asset_name_or_id);
+            FC_ASSERT(a);
+            return my->get_object<asset_dynamic_data_object>(a->
+            dynamic_asset_data_id);
+        }
+
         asset_bitasset_data_object wallet_api::get_bitasset_data(string asset_name_or_id) const {
             auto asset = get_asset(asset_name_or_id);
             FC_ASSERT(asset.is_market_issued() && asset.bitasset_data_id);
@@ -3417,6 +3500,12 @@ namespace graphene {
             return my->transfer(from, to, amount, asset_symbol, memo, broadcast);
         }
 
+        signed_transaction wallet_api::transfer_override(string issuer, string from, string to,
+                                                        string amount, string symbol, string memo, bool broadcast /* = false */) {
+            return my->transfer_override(issuer, from, to, amount, symbol,
+             memo, broadcast);
+        }
+
         signed_transaction wallet_api::create_vindb_block(string owner, uint64_t block_id, string block_hash,
                                                           bool broadcast) {
             return my->create_vindb_block(owner, block_id, block_hash, broadcast);
@@ -3489,6 +3578,13 @@ namespace graphene {
             return my->reserve_asset(from, amount, symbol, broadcast);
         }
 
+        signed_transaction wallet_api::claim_asset_fees(string issuer,
+                                                        string amount,
+                                                        string symbol,
+                                                        bool broadcast) {
+            return my->claim_asset_fees(issuer, amount, symbol, broadcast);
+        }
+        
         signed_transaction wallet_api::global_settle_asset(string symbol,
                                                            price settle_price,
                                                            bool broadcast /* = false */) {

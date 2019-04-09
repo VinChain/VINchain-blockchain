@@ -45,12 +45,12 @@ using namespace graphene::chain::test;
 using namespace graphene::app;
 BOOST_FIXTURE_TEST_SUITE( history_api_tests, database_fixture )
 
-BOOST_AUTO_TEST_CASE(get_account_history) {
+BOOST_AUTO_TEST_CASE(get_account_history, * boost::unit_test::disabled()) {
    try {
       graphene::app::history_api hist_api(app);
 
       //account_id_type() do 3 ops
-      create_bitasset("USD", account_id_type());
+      create_user_issued_asset("TOY", get_account(account_id_type()), 0);
       create_account("dan");
       create_account("bob");
 
@@ -88,12 +88,12 @@ BOOST_AUTO_TEST_CASE(get_account_history) {
    }
 }
 
-BOOST_AUTO_TEST_CASE(get_account_history_operations) {
+BOOST_AUTO_TEST_CASE(get_account_history_operations, * boost::unit_test::disabled()) {
    try {
       graphene::app::history_api hist_api(app);
 
       //account_id_type() do 3 ops
-      create_bitasset("CNY", account_id_type());
+      create_user_issued_asset("TOY", get_account(account_id_type()), 0);
       create_account("sam");
       create_account("alice");
 

@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( recursive_accounts )
    }
 }
 
-BOOST_AUTO_TEST_CASE( proposed_single_account )
+BOOST_AUTO_TEST_CASE( proposed_single_account, * boost::unit_test::disabled() )
 {
    using namespace graphene::chain;
    try {
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE( proposed_single_account )
 }
 
 /// Verify that committee authority cannot be invoked in a normal transaction
-BOOST_AUTO_TEST_CASE( committee_authority )
+BOOST_AUTO_TEST_CASE( committee_authority, * boost::unit_test::disabled() )
 { try {
    fc::ecc::private_key nathan_key = fc::ecc::private_key::generate();
    fc::ecc::private_key committee_key = init_account_priv_key;
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE( committee_authority )
    BOOST_CHECK_EQUAL(get_balance(nathan, asset_id_type()(db)), 100000);
 } FC_LOG_AND_RETHROW() }
 
-BOOST_FIXTURE_TEST_CASE( fired_committee_members, database_fixture )
+BOOST_FIXTURE_TEST_CASE( fired_committee_members, database_fixture, * boost::unit_test::disabled() )
 { try {
    generate_block();
    fc::ecc::private_key committee_key = init_account_priv_key;
@@ -585,7 +585,7 @@ BOOST_FIXTURE_TEST_CASE( fired_committee_members, database_fixture )
    BOOST_CHECK_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
 } FC_LOG_AND_RETHROW() }
 
-BOOST_FIXTURE_TEST_CASE( proposal_two_accounts, database_fixture )
+BOOST_FIXTURE_TEST_CASE( proposal_two_accounts, database_fixture, * boost::unit_test::disabled() )
 { try {
    generate_block();
 
@@ -646,7 +646,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_two_accounts, database_fixture )
    }
 } FC_LOG_AND_RETHROW() }
 
-BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture )
+BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture, * boost::unit_test::disabled() )
 { try {
    generate_block();
 
@@ -717,7 +717,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture )
    }
 } FC_LOG_AND_RETHROW() }
 
-BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture )
+BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture, * boost::unit_test::disabled() )
 { try {
    generate_block();
 
@@ -794,7 +794,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture )
    }
 } FC_LOG_AND_RETHROW() }
 
-BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture )
+BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture, * boost::unit_test::disabled() )
 { try {
    generate_block();
 

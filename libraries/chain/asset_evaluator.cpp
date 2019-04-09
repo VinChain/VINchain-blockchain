@@ -29,6 +29,7 @@
 #include <graphene/chain/exceptions.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/is_authorized_asset.hpp>
+#include <graphene/chain/permissions_validator.hpp>
 
 #include <functional>
 
@@ -39,6 +40,10 @@ namespace graphene {
 
                 database &d = db();
 
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, op.issuer, "asset_create"), 
+                    "Could not create an asset due to lack of permissions.");
+                
                 const auto &chain_parameters = d.get_global_properties().parameters;
                 FC_ASSERT(op.common_options.whitelist_authorities.size() <=
                           chain_parameters.maximum_asset_whitelist_authorities);
@@ -55,53 +60,30 @@ namespace graphene {
                 auto asset_symbol_itr = asset_indx.find(op.symbol);
                 FC_ASSERT(asset_symbol_itr == asset_indx.end());
 
-                if (d.head_block_time() > HARDFORK_385_TIME) {
-
-                    if (d.head_block_time() <= HARDFORK_409_TIME) {
-                        auto dotpos = op.symbol.find('.');
-                        if (dotpos != std::string::npos) {
-                            auto prefix = op.symbol.substr(0, dotpos);
-                            auto asset_symbol_itr = asset_indx.find(op.symbol);
-                            FC_ASSERT(asset_symbol_itr != asset_indx.end(),
-                                      "Asset ${s} may only be created by issuer of ${p}, but ${p} has not been registered",
-                                      ("s", op.symbol)("p", prefix));
-                            FC_ASSERT(asset_symbol_itr->issuer == op.issuer,
-                                      "Asset ${s} may only be created by issuer of ${p}, ${i}",
-                                      ("s", op.symbol)("p", prefix)("i", op.issuer(d).name));
-                        }
-                    } else {
-                        auto dotpos = op.symbol.rfind('.');
-                        if (dotpos != std::string::npos) {
-                            auto prefix = op.symbol.substr(0, dotpos);
-                            auto asset_symbol_itr = asset_indx.find(prefix);
-                            FC_ASSERT(asset_symbol_itr != asset_indx.end(),
-                                      "Asset ${s} may only be created by issuer of ${p}, but ${p} has not been registered",
-                                      ("s", op.symbol)("p", prefix));
-                            FC_ASSERT(asset_symbol_itr->issuer == op.issuer,
-                                      "Asset ${s} may only be created by issuer of ${p}, ${i}",
-                                      ("s", op.symbol)("p", prefix)("i", op.issuer(d).name));
-                        }
-                    }
-
-                } else {
-                    auto dotpos = op.symbol.find('.');
-                    if (dotpos != std::string::npos)
-                        wlog("Asset ${s} has a name which requires hardfork 385", ("s", op.symbol));
+                auto dotpos = op.symbol.rfind('.');
+                if (dotpos != std::string::npos) {
+                    auto prefix = op.symbol.substr(0, dotpos);
+                    auto asset_symbol_itr = asset_indx.find(prefix);
+                    FC_ASSERT(asset_symbol_itr != asset_indx.end(),
+                        "Asset ${s} may only be created by issuer of ${p}, but ${p} has not been registered",
+                        ("s", op.symbol)("p", prefix));
+                    FC_ASSERT(asset_symbol_itr->issuer == op.issuer,
+                        "Asset ${s} may only be created by issuer of ${p}, ${i}",
+                        ("s", op.symbol)("p", prefix)("i", op.issuer(d).name));
                 }
-
+                
                 if (op.bitasset_opts) {
                     const asset_object &backing = op.bitasset_opts->short_backing_asset(d);
                     if (backing.is_market_issued()) {
                         const asset_bitasset_data_object &backing_bitasset_data = backing.bitasset_data(d);
                         const asset_object &backing_backing = backing_bitasset_data.options.short_backing_asset(d);
                         FC_ASSERT(!backing_backing.is_market_issued(),
-                                  "May not create a bitasset backed by a bitasset backed by a bitasset.");
-                        FC_ASSERT(
-                                op.issuer != GRAPHENE_COMMITTEE_ACCOUNT || backing_backing.get_id() == asset_id_type(),
-                                "May not create a blockchain-controlled market asset which is not backed by CORE.");
+                                    "May not create a bitasset backed by a bitasset backed by a bitasset.");
+                        FC_ASSERT(op.issuer != GRAPHENE_COMMITTEE_ACCOUNT || backing_backing.get_id() == asset_id_type(),
+                                    "May not create a blockchain-controlled market asset which is not backed by CORE.");
                     } else
                         FC_ASSERT(op.issuer != GRAPHENE_COMMITTEE_ACCOUNT || backing.get_id() == asset_id_type(),
-                                  "May not create a blockchain-controlled market asset which is not backed by CORE.");
+                                    "May not create a blockchain-controlled market asset which is not backed by CORE.");
                     FC_ASSERT(op.bitasset_opts->feed_lifetime_sec > chain_parameters.block_interval &&
                               op.bitasset_opts->force_settlement_delay_sec > chain_parameters.block_interval);
                 }
@@ -123,28 +105,22 @@ namespace graphene {
 
         object_id_type asset_create_evaluator::do_apply(const asset_create_operation &op) {
             try {
-                bool hf_429 = fee_is_odd && db().head_block_time() > HARDFORK_CORE_429_TIME;
-
+                
                 const asset_dynamic_data_object &dyn_asset =
-                        db().create<asset_dynamic_data_object>([&](asset_dynamic_data_object &a) {
-                            a.current_supply = 0;
-                            a.fee_pool = core_fee_paid - (hf_429 ? 1 : 0);
-                        });
-                if (fee_is_odd && !hf_429) {
-                    const auto &core_dd = db().get<asset_object>(asset_id_type()).dynamic_data(db());
-                    db().modify(core_dd, [=](asset_dynamic_data_object &dd) {
-                        dd.current_supply++;
+                    db().create<asset_dynamic_data_object>([&](asset_dynamic_data_object &a) {
+                        a.current_supply = 0;
+                        a.fee_pool = core_fee_paid - (fee_is_odd ? 1 : 0);
                     });
-                }
 
+                auto next_asset_id = db().get_index_type<asset_index>().get_next_id();
                 asset_bitasset_data_id_type bit_asset_id;
+
                 if (op.bitasset_opts.valid())
                     bit_asset_id = db().create<asset_bitasset_data_object>([&](asset_bitasset_data_object &a) {
                         a.options = *op.bitasset_opts;
                         a.is_prediction_market = op.is_prediction_market;
+                        a.asset_id = next_asset_id;
                     }).id;
-
-                auto next_asset_id = db().get_index_type<asset_index>().get_next_id();
 
                 const asset_object &new_asset =
                         db().create<asset_object>([&](asset_object &a) {
@@ -159,6 +135,13 @@ namespace graphene {
                             a.dynamic_asset_data_id = dyn_asset.id;
                             if (op.bitasset_opts.valid())
                                 a.bitasset_data_id = bit_asset_id;
+
+                            if (a.options.extensions.value.payment_core_exchange_rate.valid()) {
+                                if (a.options.extensions.value.payment_core_exchange_rate->base.asset_id.instance.value == 0)
+                                    a.options.extensions.value.payment_core_exchange_rate->quote.asset_id = next_asset_id;
+                                else
+                                    a.options.extensions.value.payment_core_exchange_rate->base.asset_id = next_asset_id;
+                            }
                         });
                 assert(new_asset.id == next_asset_id);
 
@@ -170,6 +153,10 @@ namespace graphene {
         void_result asset_issue_evaluator::do_evaluate(const asset_issue_operation &o) {
             try {
                 const database &d = db();
+
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_create"), 
+                    "Could not issue the asset due to lack of permissions.");
 
                 const asset_object &a = o.asset_to_issue.asset_id(d);
                 FC_ASSERT(o.issuer == a.issuer);
@@ -202,6 +189,10 @@ namespace graphene {
         void_result asset_reserve_evaluator::do_evaluate(const asset_reserve_operation &o) {
             try {
                 const database &d = db();
+
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.payer, "asset_create"), 
+                    "Could not reserve the asset due to lack of permissions.");
 
                 const asset_object &a = o.amount_to_reserve.asset_id(d);
                 GRAPHENE_ASSERT(
@@ -239,6 +230,10 @@ namespace graphene {
             try {
                 database &d = db();
 
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.from_account, "asset_create"), 
+                    "Could not fund the asset fee pool due to lack of permissions.");
+
                 const asset_object &a = o.asset_id(d);
 
                 asset_dyn_data = &a.dynamic_asset_data_id(d);
@@ -265,6 +260,10 @@ namespace graphene {
             try {
                 database &d = db();
 
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_create"), 
+                    "Could not update the asset due to lack of permissions.");
+
                 const asset_object &a = o.asset_to_update(d);
                 auto a_copy = a;
                 a_copy.options = o.new_options;
@@ -275,8 +274,7 @@ namespace graphene {
                     if (a.is_market_issued() && *o.new_issuer == GRAPHENE_COMMITTEE_ACCOUNT) {
                         const asset_object &backing = a.bitasset_data(d).options.short_backing_asset(d);
                         if (backing.is_market_issued()) {
-                            const asset_object &backing_backing = backing.bitasset_data(d).options.short_backing_asset(
-                                    d);
+                            const asset_object &backing_backing = backing.bitasset_data(d).options.short_backing_asset(d);
                             FC_ASSERT(backing_backing.get_id() == asset_id_type(),
                                       "May not create a blockchain-controlled market asset which is not backed by CORE.");
                         } else
@@ -285,7 +283,7 @@ namespace graphene {
                     }
                 }
 
-                if ((d.head_block_time() < HARDFORK_572_TIME) || (a.dynamic_asset_data_id(d).current_supply != 0)) {
+                if (a.dynamic_asset_data_id(d).current_supply != 0) {
                     // new issuer_permissions must be subset of old issuer permissions
                     FC_ASSERT(!(o.new_options.issuer_permissions & ~a.options.issuer_permissions),
                               "Cannot reinstate previously revoked issuer permissions on an asset.");
@@ -296,7 +294,9 @@ namespace graphene {
                           "Flag change is forbidden by issuer permissions");
 
                 asset_to_update = &a;
-                FC_ASSERT(o.issuer == a.issuer, "", ("o.issuer", o.issuer)("a.issuer", a.issuer));
+                FC_ASSERT(o.issuer == a.issuer, 
+                    "Incorrect issuer for asset! (${o.issuer} != ${a.issuer})", 
+                    ("o.issuer", o.issuer)("a.issuer", a.issuer));
 
                 const auto &chain_parameters = d.get_global_properties().parameters;
 
@@ -616,7 +616,12 @@ namespace graphene {
 
         void_result asset_claim_fees_evaluator::do_evaluate(const asset_claim_fees_operation &o) {
             try {
-                FC_ASSERT(db().head_block_time() > HARDFORK_413_TIME);
+
+                database &d = db();
+                permissions_validator pv;
+                FC_ASSERT(pv.check_permissions_for_operation(d, o.issuer, "asset_create"), 
+                    "Could not claim fees from the asset pool due to lack of permissions.");
+
                 FC_ASSERT(o.amount_to_claim.asset_id(db()).issuer == o.issuer,
                           "Asset fees may only be claimed by the issuer");
                 return void_result();

@@ -106,7 +106,7 @@ withdrawal_period_descriptor current_period(const withdraw_permission_object& pe
  * That issue is concerned with ensuring that the first claim
  * can occur before the first withdrawal period.
  */
-BOOST_AUTO_TEST_CASE( withdraw_permission_create_before_hardfork_23 )
+BOOST_AUTO_TEST_CASE( withdraw_permission_create_before_hardfork_23, * boost::unit_test::disabled() )
 { try {
    auto nathan_private_key = generate_private_key("nathan");
    auto dan_private_key = generate_private_key("dan");
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_create_before_hardfork_23 )
  * That issue is concerned with ensuring that the first claim
  * can occur before the first withdrawal period.
  */
-BOOST_AUTO_TEST_CASE( withdraw_permission_create_after_hardfork_23 )
+BOOST_AUTO_TEST_CASE( withdraw_permission_create_after_hardfork_23, * boost::unit_test::disabled() )
 { try {
    auto nathan_private_key = generate_private_key("nathan");
    auto dan_private_key = generate_private_key("dan");
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_create_after_hardfork_23 )
  * That issue is concerned with ensuring that the first claim
  * can occur before the first withdrawal period.
  */
-BOOST_AUTO_TEST_CASE( withdraw_permission_test_before_hardfork_23 )
+BOOST_AUTO_TEST_CASE( withdraw_permission_test_before_hardfork_23, * boost::unit_test::disabled() )
 { try {
       INVOKE(withdraw_permission_create_before_hardfork_23);
 
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_test_before_hardfork_23 )
           BOOST_CHECK(permit_object.expiration == first_start_time + permit_object.withdrawal_period_sec*5 );
       }
 
-   generate_blocks(2); // Still before the first period, but BEFORE the real time during which "early" claims are checked
+      generate_blocks(2); // Still before the first period, but BEFORE the real time during which "early" claims are checked
 
       {
           withdraw_permission_claim_operation op;
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_test_before_hardfork_23 )
  * That issue is concerned with ensuring that the first claim
  * can occur before the first withdrawal period.
  */
-BOOST_AUTO_TEST_CASE( withdraw_permission_test_after_hardfork_23 )
+BOOST_AUTO_TEST_CASE( withdraw_permission_test_after_hardfork_23, * boost::unit_test::disabled() )
 { try {
    INVOKE(withdraw_permission_create_after_hardfork_23);
 
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_test_after_hardfork_23 )
    }
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE( withdraw_permission_nominal_case )
+BOOST_AUTO_TEST_CASE( withdraw_permission_nominal_case, * boost::unit_test::disabled() )
 { try {
    INVOKE(withdraw_permission_create_before_hardfork_23);
 
@@ -566,7 +566,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_nominal_case )
  *
  * Total withdrawal will be 13 units.
  */
-BOOST_AUTO_TEST_CASE( withdraw_permission_incremental_case )
+BOOST_AUTO_TEST_CASE( withdraw_permission_incremental_case, * boost::unit_test::disabled() )
 { try {
     INVOKE(withdraw_permission_create_after_hardfork_23);
     time_point_sec expected_first_period_start_time = HARDFORK_23_TIME + db.get_global_properties().parameters.block_interval*5; // Hard-coded to synchronize with withdraw_permission_create_after_hardfork_23()
@@ -770,7 +770,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_incremental_case )
     BOOST_CHECK_EQUAL(get_balance(dan_id, asset_id_type()), 13);
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE( withdraw_permission_update )
+BOOST_AUTO_TEST_CASE( withdraw_permission_update, * boost::unit_test::disabled() )
 { try {
    INVOKE(withdraw_permission_create_before_hardfork_23);
 
@@ -813,7 +813,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_update )
    }
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE( withdraw_permission_delete )
+BOOST_AUTO_TEST_CASE( withdraw_permission_delete, * boost::unit_test::disabled() )
 { try {
    INVOKE(withdraw_permission_update);
 
@@ -826,7 +826,7 @@ BOOST_AUTO_TEST_CASE( withdraw_permission_delete )
    PUSH_TX( db, trx );
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE( mia_feeds )
+BOOST_AUTO_TEST_CASE( mia_feeds, * boost::unit_test::disabled() )
 { try {
    ACTORS((nathan)(dan)(ben)(vikram));
    asset_id_type bit_usd_id = create_bitasset("USDBIT").id;
@@ -899,7 +899,7 @@ BOOST_AUTO_TEST_CASE( mia_feeds )
    }
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE( feed_limit_test )
+BOOST_AUTO_TEST_CASE( feed_limit_test, * boost::unit_test::disabled() )
 { try {
    INVOKE( mia_feeds );
    const asset_object& bit_usd = get_asset("USDBIT");
@@ -986,7 +986,7 @@ BOOST_AUTO_TEST_CASE( witness_create )
  *  make sure that global settling cannot be performed by anyone other than the
  *  issuer and only if the global settle bit is set.
  */
-BOOST_AUTO_TEST_CASE( global_settle_test )
+BOOST_AUTO_TEST_CASE( global_settle_test, * boost::unit_test::disabled() )
 {
    try {
    ACTORS((nathan)(ben)(valentine)(dan));
@@ -1065,7 +1065,7 @@ BOOST_AUTO_TEST_CASE( global_settle_test )
 } FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( worker_create_test )
+BOOST_AUTO_TEST_CASE( worker_create_test, * boost::unit_test::disabled() )
 { try {
    ACTOR(nathan);
    upgrade_to_lifetime_member(nathan_id);
@@ -1104,7 +1104,7 @@ BOOST_AUTO_TEST_CASE( worker_create_test )
    BOOST_CHECK(balance.policy.get<cdd_vesting_policy>().vesting_seconds == fc::days(1).to_seconds());
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE( worker_pay_test )
+BOOST_AUTO_TEST_CASE( worker_pay_test, * boost::unit_test::disabled() )
 { try {
    INVOKE(worker_create_test);
    GET_ACTOR(nathan);
@@ -1186,7 +1186,7 @@ BOOST_AUTO_TEST_CASE( worker_pay_test )
    BOOST_CHECK_EQUAL(worker_id_type()(db).worker.get<vesting_balance_worker_type>().balance(db).balance.amount.value, 0);
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE( refund_worker_test )
+BOOST_AUTO_TEST_CASE( refund_worker_test, * boost::unit_test::disabled() )
 {try{
    ACTOR(nathan);
    upgrade_to_lifetime_member(nathan_id);
@@ -1259,7 +1259,7 @@ BOOST_AUTO_TEST_CASE( refund_worker_test )
  * Create a burn worker, vote it in, make sure funds are destroyed.
  */
 
-BOOST_AUTO_TEST_CASE( burn_worker_test )
+BOOST_AUTO_TEST_CASE( burn_worker_test, * boost::unit_test::disabled() )
 {try{
    ACTOR(nathan);
    upgrade_to_lifetime_member(nathan_id);
@@ -1332,7 +1332,7 @@ BOOST_AUTO_TEST_CASE( burn_worker_test )
    BOOST_CHECK_EQUAL( get_balance(GRAPHENE_NULL_ACCOUNT, asset_id_type()), 2000 );
 }FC_LOG_AND_RETHROW()}
 
-BOOST_AUTO_TEST_CASE( force_settle_test )
+BOOST_AUTO_TEST_CASE( force_settle_test, * boost::unit_test::disabled() )
 {
    try
    {
@@ -1546,7 +1546,7 @@ BOOST_AUTO_TEST_CASE( assert_op_test )
    } FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( balance_object_test )
+BOOST_AUTO_TEST_CASE( balance_object_test, * boost::unit_test::disabled() )
 { try {
    // Intentionally overriding the fixture's db; I need to control genesis on this one.
    database db;
@@ -1560,7 +1560,7 @@ BOOST_AUTO_TEST_CASE( balance_object_test )
    auto x_key = generate_private_key("x");
    auto v1_key = generate_private_key("v1");
    auto v2_key = generate_private_key("v2");
-
+   
    genesis_state_type::initial_vesting_balance_type vest;
    vest.owner = v1_key.get_public_key();
    vest.asset_symbol = GRAPHENE_SYMBOL;
@@ -1724,7 +1724,7 @@ BOOST_AUTO_TEST_CASE(transfer_with_memo) {
    } FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE(zero_second_vbo)
+BOOST_AUTO_TEST_CASE(zero_second_vbo, * boost::unit_test::disabled() )
 {
    try
    {
@@ -1847,8 +1847,9 @@ BOOST_AUTO_TEST_CASE( vbo_withdraw_different )
    try
    {
       ACTORS((alice)(izzy));
+      grant_permissions_for_account(izzy_id(db), {"asset_create"});
       // don't pay witnesses so we have some worker budget to work with
-
+      generate_block();
       // transfer(account_id_type(), alice_id, asset(1000));
 
       asset_id_type stuff_id = create_user_issued_asset( "STUFF", izzy_id(db), 0 ).id;
@@ -1920,6 +1921,7 @@ BOOST_AUTO_TEST_CASE( vbo_withdraw_different )
 BOOST_AUTO_TEST_CASE( top_n_special )
 {
    ACTORS( (alice)(bob)(chloe)(dan)(izzy)(stan) );
+   grant_permissions_for_account(izzy_id(db), {"asset_create"});
 
    generate_blocks( HARDFORK_516_TIME );
    generate_blocks( HARDFORK_599_TIME );
@@ -1932,7 +1934,7 @@ BOOST_AUTO_TEST_CASE( top_n_special )
          // Stan (special authority)
          // Alice, Bob, Chloe, Dan (ABCD)
          //
-
+         // generate_block();
          asset_id_type topn_id = create_user_issued_asset( "TOPN", izzy_id(db), 0 ).id;
          authority stan_owner_auth = stan_id(db).owner;
          authority stan_active_auth = stan_id(db).active;
@@ -2068,7 +2070,7 @@ BOOST_AUTO_TEST_CASE( top_n_special )
    } FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( buyback )
+BOOST_AUTO_TEST_CASE( buyback, * boost::unit_test::disabled() )
 {
    ACTORS( (alice)(bob)(chloe)(dan)(izzy)(philbin) );
    upgrade_to_lifetime_member(philbin_id);
