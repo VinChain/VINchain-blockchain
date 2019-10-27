@@ -44,6 +44,8 @@
 #include <boost/algorithm/string.hpp>
 #include <regex>
 
+#include <iostream>
+
 namespace graphene { namespace elasticsearch {
 
 namespace detail
@@ -74,8 +76,12 @@ class elasticsearch_plugin_impl
       bool _elasticsearch_visitor = false;
       CURL *curl; // curl handler
       vector <string> bulk; //  vector of op lines
+      uint32_t limit_documents;
+      bool is_sync = false;
+
    private:
       void add_elasticsearch( const account_id_type account_id, const optional<operation_history_object>& oho, const signed_block& b );
+      void checkState(const fc::time_point_sec& block_time);
       void createBulkLine(account_transaction_history_object ath, operation_history_struct os, int op_type, block_struct bs, visitor_struct vs);
       void sendBulk(std::string _elasticsearch_node_url, bool _elasticsearch_logs);
 
@@ -88,12 +94,25 @@ elasticsearch_plugin_impl::~elasticsearch_plugin_impl()
 
 void elasticsearch_plugin_impl::update_account_histories( const signed_block& b )
 {
+   checkState(b.timestamp);
    graphene::chain::database& db = database();
    const vector<optional< operation_history_object > >& hist = db.get_applied_operations();
+
+   bool is_first = true;
+   auto skip_oho_id = [&is_first,&db,this]() {
+      if( is_first && db._undo_db.enabled() ) // this ensures that the current id is rolled back on undo
+      {
+         db.remove( db.create<operation_history_object>( []( operation_history_object& obj) {} ) );
+         is_first = false;
+      }
+      else
+         _oho_index->use_next_id();
+   };
+
    for( const optional< operation_history_object >& o_op : hist ) {
       optional <operation_history_object> oho;
-
       auto create_oho = [&]() {
+         is_first = false;
          return optional<operation_history_object>(
                db.create<operation_history_object>([&](operation_history_object &h) {
                   if (o_op.valid())
@@ -109,7 +128,7 @@ void elasticsearch_plugin_impl::update_account_histories( const signed_block& b 
       };
 
       if( !o_op.valid() ) {
-         _oho_index->use_next_id();
+         skip_oho_id();
          continue;
       }
       oho = create_oho();
@@ -134,6 +153,12 @@ void elasticsearch_plugin_impl::update_account_histories( const signed_block& b 
       {
          add_elasticsearch( account_id, oho, b );
       }
+   }
+
+   // we send bulk at end of block when we are in sync for better real time client experience
+   if (is_sync && curl && bulk.size() > 0)
+   {
+       sendBulk(_elasticsearch_node_url, _elasticsearch_logs);
    }
 }
 
@@ -193,16 +218,12 @@ void elasticsearch_plugin_impl::add_elasticsearch( const account_id_type account
    bs.block_time = b.timestamp;
    bs.trx_id = trx_id;
 
-   // check if we are in replay or in sync and change number of bulk documents accordingly
-   uint32_t limit_documents = 0;
-   if((fc::time_point::now() - b.timestamp) < fc::seconds(30))
-      limit_documents = _elasticsearch_bulk_sync;
-   else
-      limit_documents = _elasticsearch_bulk_replay;
-
    createBulkLine(ath, os, op_type, bs, vs); // we have everything, creating bulk line
 
-   if (curl && bulk.size() >= limit_documents) { // we are in bulk time, ready to add data to elasticsearech
+   if (curl && bulk.size() >= limit_documents)
+   {
+      // we are in bulk time, ready to add data to elasticsearech
+      //wlog("!!!!!! sendBulk()\n");
       sendBulk(_elasticsearch_node_url, _elasticsearch_logs);
    }
 
@@ -229,6 +250,20 @@ void elasticsearch_plugin_impl::add_elasticsearch( const account_id_type account
       if (by_opid_idx.find(remove_op_id) == by_opid_idx.end()) {
          db.remove(remove_op_id(db));
       }
+   }
+}
+
+void elasticsearch_plugin_impl::checkState(const fc::time_point_sec& block_time)
+{
+   if((fc::time_point::now() - block_time) < fc::seconds(30))
+   {
+      limit_documents = _elasticsearch_bulk_sync;
+      is_sync = true;
+   }
+   else
+   {
+      limit_documents = _elasticsearch_bulk_replay;
+      is_sync = false;
    }
 }
 
